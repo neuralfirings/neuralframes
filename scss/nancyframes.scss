@@ -1,0 +1,111 @@
+
+$panelwidth: 300px;
+$workheight: 600px;
+
+.nf-btn {
+  border-radius: 2px;
+  background-color: #EEEEEE;
+  border: 1px solid #DDDDDD;
+  border-bottom: 3px solid #BBB;
+  color: #909090;
+  cursor: pointer;
+  text-align: center;
+  line-height: 1.5em;
+  min-width: 50px;
+  display: inline-block;
+  padding: 0px 5px;
+}
+.nf-btn:hover {
+  background-color: #DDDDDD;
+  border-bottom: 2px solid #DDDDDD;
+}
+
+.workspace-container {
+  background-color: #EEEEEE;
+  min-height: 100%; 
+  width: calc(100% - 300px);
+  overflow: auto;
+  position: relative;
+  float: left;
+  .workspace {
+    overflow: auto;
+    position: relative;
+    // float: left;
+    background-color: #FFFFFF;
+    margin: 0 auto;
+    min-height: 100%; 
+    width: 1080px;
+
+    -moz-box-shadow:    0px 2px 4px 0px rgba(0,0,0,0.50);
+    box-shadow:         0px 2px 4px 0px rgba(0,0,0,0.50);
+    
+    .el {
+      position: absolute !important;
+    }
+    .defaultbox {
+      width: 180px;
+      height: 50px;
+      background-color: #DDD;
+      top: 10px; 
+      left: 10px;
+      border: #BBB;
+    }
+  }
+}
+
+.workpanel {
+  font-size: 0.8em;
+  float: left;
+  position: relative;
+  background-color: #555;
+  height: 100%; //$workheight;
+  width: $panelwidth;// - 20px;
+  padding: 10px;
+  overflow: auto;
+  hr {
+    border-color: #888;
+    margin: 10px 0px;
+  }
+  label {
+    color: #EEE;
+    min-width: 100px;
+  }
+  .minicolors-theme-default .minicolors-swatch {
+    top: 0px;
+    left: 0px;
+    width: 20px;
+    height: 20px;
+    border: solid #888 1px;
+
+  }
+  .minicolors-theme-default.minicolors-position-right .minicolors-swatch {
+    left: auto;
+    right: 5px;
+  }
+  input {
+    border: solid #888 1px;
+    border-radius: 2px;
+  }
+  textarea {
+    width: 100%;
+  }
+  .input-num {
+    width: 50px;
+  }
+  .input-num4 {
+    width: 104px;
+  }
+  .input-block {
+    width: 100%;
+  }
+  .input-color {
+    width: 104px;
+  }
+  .css-editor {
+    font-family: "consolas";
+    min-height: 300px;
+  }
+  .set-bk-color {
+
+  }
+}

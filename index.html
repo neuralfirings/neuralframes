@@ -1,0 +1,118 @@
+<html>
+<head>
+  <title>Neural Frames</title>
+  
+  <script type="text/javascript" src="public/js/libraries.min.js"></script>
+  <link href="public/css/libraries.css" rel="stylesheet">
+  
+  <script src="public/js/application.js"></script>
+  <link href="public/css/application.css" rel="stylesheet">
+
+  <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
+
+  <style id="userstyle"></style>
+</head>
+<body>
+  <div>
+    <div class="workspace-container">
+      <div class="workspace"></div>
+    </div>
+    <div class="workpanel">
+
+      <label>Page Dimensions</label>
+      <input type="text" class="pageWidth input-num" placeholder="width">
+      <input type="text" class="pageHeight input-num" placeholder="height">
+      <div class="nf-btn updatePageDim">Update</div>
+
+      <div style="height: 10px"></div>
+
+      <label>Actions</label>
+      <div class="nf-btn addBox">Add Box</div>
+      
+      <hr />
+
+      <label>position</label>
+        <input type="text" class="input-num elidstyle set-pos-left" placeholder="width">
+        <input type="text" class="input-num elidstyle set-pos-top" placeholder="height">
+        <br />
+
+      <label>size</label>
+        <input type="text" class="input-num elidstyle set-size-w" placeholder="width">
+        <input type="text" class="input-num elidstyle set-size-h" placeholder="height">
+        <br />
+
+      <label>radius</label>
+        <input type="text" class="input-num4" placeholder="">
+        <br />
+
+      <label>opacity</label>
+        <input type="text" class="input-num" placeholder="0-1">
+        <br />
+
+      <label>fills</label>
+        <input type="text" class="input-color set-bk-color" placeholder="">
+        <br />
+
+      <label>gradient</label>
+        <input type="text" class="input-num" placeholder="0-1">
+        <br />
+
+      <label>border</label>
+        <input type="text" class="input-num" placeholder="">
+        <br />
+
+      <label>border color</label>
+        <input type="text" class="input-color set-border-color" placeholder="">
+        <br />
+
+      <label>text color</label>
+        <input type="text" class="input-color" placeholder="">
+        <br />
+
+      <label>shadow</label>
+        <input type="text" class="input-num" placeholder="">
+        <br />
+
+      <label>inner</label>
+        <input type="text" class="input-num" placeholder="">
+        <br />
+
+      <label>margin</label>
+        <input type="text" class="input-num4" placeholder="">
+        <br />
+
+      <label>padding</label>
+        <input type="text" class="input-num4" placeholder="">
+        <br />
+
+      <label></label>
+        <div class="nf-btn createclass">Create Class</div>
+
+
+      <hr />
+
+      <label>Included classes</label>
+        <input type="text" class="css-includes input-block" placeholder="this that">
+        <br />
+
+      <div style="height: 10px"></div>
+
+      <label>Helper Tools</label><br />
+      <label>color picker: </label>
+        <input type="text" class="input-color helper-colorhex" placeholder="">
+        <br />
+
+      <label>gradient: </label>
+        <input type="text" class="input-num helper-gradient" placeholder="0-1">
+        <br />
+      
+      <label> </label><textarea class="helper-gradient-code" style="width: auto"></textarea>
+      
+
+      <label>CSS Editor</label><br />
+      <textarea class="css-editor" id="css-editor"></textarea>
+    </div>
+    <div class="clearfix"></div>
+  </div>
+</body>
+</html>

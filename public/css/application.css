@@ -1,0 +1,83 @@
+.nf-btn {
+  border-radius: 2px;
+  background-color: #EEEEEE;
+  border: 1px solid #DDDDDD;
+  border-bottom: 3px solid #BBB;
+  color: #909090;
+  cursor: pointer;
+  text-align: center;
+  line-height: 1.5em;
+  min-width: 50px;
+  display: inline-block;
+  padding: 0px 5px; }
+
+.nf-btn:hover {
+  background-color: #DDDDDD;
+  border-bottom: 2px solid #DDDDDD; }
+
+.workspace-container {
+  background-color: #EEEEEE;
+  min-height: 100%;
+  width: calc(100% - 300px);
+  overflow: auto;
+  position: relative;
+  float: left; }
+  .workspace-container .workspace {
+    overflow: auto;
+    position: relative;
+    background-color: #FFFFFF;
+    margin: 0 auto;
+    min-height: 100%;
+    width: 1080px;
+    -moz-box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.5);
+    box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.5); }
+    .workspace-container .workspace .el {
+      position: absolute !important; }
+    .workspace-container .workspace .defaultbox {
+      width: 180px;
+      height: 50px;
+      background-color: #DDD;
+      top: 10px;
+      left: 10px;
+      border: #BBB; }
+
+.workpanel {
+  font-size: 0.8em;
+  float: left;
+  position: relative;
+  background-color: #555;
+  height: 100%;
+  width: 300px;
+  padding: 10px;
+  overflow: auto; }
+  .workpanel hr {
+    border-color: #888;
+    margin: 10px 0px; }
+  .workpanel label {
+    color: #EEE;
+    min-width: 100px; }
+  .workpanel .minicolors-theme-default .minicolors-swatch {
+    top: 0px;
+    left: 0px;
+    width: 20px;
+    height: 20px;
+    border: solid #888 1px; }
+  .workpanel .minicolors-theme-default.minicolors-position-right .minicolors-swatch {
+    left: auto;
+    right: 5px; }
+  .workpanel input {
+    border: solid #888 1px;
+    border-radius: 2px; }
+  .workpanel textarea {
+    width: 100%; }
+  .workpanel .input-num {
+    width: 50px; }
+  .workpanel .input-num4 {
+    width: 104px; }
+  .workpanel .input-block {
+    width: 100%; }
+  .workpanel .input-color {
+    width: 104px; }
+  .workpanel .css-editor {
+    font-family: "consolas";
+    min-height: 300px; }
