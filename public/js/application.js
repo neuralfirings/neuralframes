@@ -1,4 +1,4 @@
-var displayCSSChunk, getColorLuminance, hex, hexDigits, makeActive, moveInlineStyle, rgb2hex, setDefaultStyle, updateClasses, updateStyle;
+var displayCSSChunk, displayOnlyDefined, getColorLuminance, hex, hexDigits, inlineToPanel, jsonToClass, jsonToPanel, makeActive, panelToJSON, rgb2hex, setDefaultStyle, styles, updateClasses;
 
 $(document).ready(function() {
   var editor, elidCtr;
@@ -27,12 +27,14 @@ $(document).ready(function() {
     return $("#userstyle").append($(this).val());
   });
   $(".elidstyle").keyup(function() {
-    return updateStyle($(".el-active"));
+    panelToJSON($(".el-active"));
+    return jsonToClass($(".el-active"));
   });
   $(".elidstyle").change(function() {
-    return updateStyle($(".el-active"));
+    panelToJSON($(".el-active"));
+    return jsonToClass($(".el-active"));
   });
-  $(".set-gradient").keyup(function() {
+  $(".set-gradient").bind("keyup change", function() {
     var code, darkerhex, hex;
     hex = $(".set-bk-color").val();
     darkerhex = getColorLuminance(hex, -$(this).val());
@@ -72,9 +74,7 @@ $(document).ready(function() {
     var h, pageDiv, w;
     if ($(".page").length === 0) {
       pageDiv = $("<div class='page'></div>");
-      pageDiv.draggable({
-        snap: true
-      });
+      pageDiv.draggable({});
       pageDiv.resizable();
     } else {
       pageDiv = $(".page");
@@ -91,18 +91,21 @@ $(document).ready(function() {
       boxDiv.append($("<div class='el-content'></div>"));
       boxDiv.addClass("defaultbox");
       boxDiv.draggable({
-        snap: true,
+        grid: [5, 5],
         start: function() {
           makeActive($(this));
           return updateClasses($(this));
         },
         stop: function() {
-          return moveInlineStyle(boxDiv);
+          return inlineToPanel(boxDiv);
         }
       });
       boxDiv.resizable({
+        grid: [5, 5],
         stop: function() {
-          return moveInlineStyle(boxDiv);
+          inlineToPanel(boxDiv);
+          panelToJSON(boxDiv);
+          return jsonToClass(boxDiv);
         }
       });
       makeActive(boxDiv);
@@ -111,7 +114,6 @@ $(document).ready(function() {
         makeActive($(this));
         return updateClasses($(this));
       });
-      updateStyle(boxDiv);
       $(".workspace").append(boxDiv);
       return elidCtr++;
     });
@@ -126,7 +128,8 @@ $(document).ready(function() {
   });
   return $(".resetcss").click(function() {
     return setDefaultStyle(function() {
-      return updateStyle($(".el-active"));
+      panelToJSON($(".el-active"));
+      return jsonToClass($(".el-active"));
     });
   });
 });
@@ -135,8 +138,6 @@ setDefaultStyle = function(callback) {
   $(".elidstyle").val("");
   $(".set-pos-top").val("20px");
   $(".set-pos-left").val("20px");
-  $(".set-size-w").val("200px");
-  $(".set-size-h").val("50px");
   $(".set-outershadow-x").val("1");
   $(".set-outershadow-y").val("1");
   $(".set-outershadow-b").val("3");
@@ -148,95 +149,87 @@ setDefaultStyle = function(callback) {
   return callback();
 };
 
-displayCSSChunk = function(css) {
-  if (css === void 0) {
+styles = [];
+
+panelToJSON = function(div) {
+  var elid;
+  elid = div.data("elid");
+  if (styles[elid] === void 0) {
+    styles[elid] = {};
+  }
+  styles[elid].width = $(".set-size-w").val();
+  styles[elid].height = $(".set-size-h").val();
+  styles[elid].textalign = $(".set-text-align").val();
+  styles[elid].fontfamily = $(".set-font-family").val();
+  styles[elid].fontweight = $(".set-font-weight").val();
+  styles[elid].fontsize = $(".set-font-size").val();
+  styles[elid].lineheight = $(".set-line-height").val();
+  styles[elid].color = $(".set-color").val();
+  styles[elid].borderradius = $(".set-border-radius").val();
+  styles[elid].border = $(".set-border").val();
+  styles[elid].bordercolor = $(".set-border-color").val();
+  styles[elid].margin = $(".set-margin").val();
+  styles[elid].padding = $(".set-padding").val();
+  styles[elid].opacity = $(".set-opacity").val();
+  styles[elid].backgroundcolor = $(".set-bk-color").val();
+  styles[elid].gradientcode = $(".set-gradient-code").val();
+  return styles[elid].shadowcode = $(".set-shadow-code").val();
+};
+
+displayOnlyDefined = function(text) {
+  if (text === void 0) {
     return "";
   } else {
-    return "  " + css;
+    return text;
   }
 };
 
-updateStyle = function(div) {
-  var backgroundcolor, border, bordercolor, borderradius, code, color, css, elid, fontfamily, fontsize, fontweight, gradientcode, height, lineheight, margin, opacity, padding, shadowcode, stylewrapper, textalign, width;
-  css = {};
-  width = $(".set-size-w").val();
-  if (width !== "") {
-    css.width = "width: " + width + ";\n";
+jsonToPanel = function(div) {
+  var elid;
+  elid = div.data("elid");
+  $(".set-size-w").val(displayOnlyDefined(styles[elid].width));
+  $(".set-size-h").val(displayOnlyDefined(styles[elid].height));
+  $(".set-text-align").val(displayOnlyDefined(styles[elid].textalign));
+  $(".set-font-family").val(displayOnlyDefined(styles[elid].fontfamily));
+  $(".set-font-weight").val(displayOnlyDefined(styles[elid].fontweight));
+  $(".set-font-size").val(displayOnlyDefined(styles[elid].fontsize));
+  $(".set-line-height").val(displayOnlyDefined(styles[elid].lineheight));
+  $(".set-color").val(displayOnlyDefined(styles[elid].color));
+  $(".set-border-radius").val(displayOnlyDefined(styles[elid].borderradius));
+  $(".set-border").val(displayOnlyDefined(styles[elid].border));
+  $(".set-border-color").val(displayOnlyDefined(styles[elid].bordercolor));
+  $(".set-margin").val(displayOnlyDefined(styles[elid].margin));
+  $(".set-padding").val(displayOnlyDefined(styles[elid].padding));
+  $(".set-opacity").val(displayOnlyDefined(styles[elid].opacity));
+  $(".set-bk-color").val(displayOnlyDefined(styles[elid].backgroundcolor));
+  $(".set-gradient-code").val(displayOnlyDefined(styles[elid].gradientcode));
+  return $(".set-shadow-code").val(displayOnlyDefined(styles[elid].shadowcode));
+};
+
+displayCSSChunk = function(label, css) {
+  if (css === void 0 || css === "") {
+    return "";
+  } else {
+    if (label === void 0 || label === "") {
+      return css + "\n";
+    } else {
+      return ("  " + label + ": ") + css + "; \n";
+    }
   }
-  height = $(".set-size-h").val();
-  if (height !== "") {
-    css.height = "height: " + height + ";\n";
-  }
-  textalign = $(".set-text-align").val();
-  if (textalign !== "") {
-    css.textalign = "text-align: " + textalign + ";\n";
-  }
-  fontfamily = $(".set-font-family").val();
-  if (fontfamily !== "") {
-    css.fontfamily = "font-family: " + fontfamily + ";\n";
-  }
-  fontweight = $(".set-font-weight").val();
-  if (fontweight !== "") {
-    css.fontweight = "font-weight: " + fontweight + ";\n";
-  }
-  fontsize = $(".set-font-size").val();
-  if (fontsize !== "") {
-    css.fontsize = "font-size: " + fontsize + ";\n";
-  }
-  lineheight = $(".set-line-height").val();
-  if (lineheight !== "") {
-    css.lineheight = "line-height: " + lineheight + ";\n";
-  }
-  color = $(".set-color").val();
-  if (color !== "") {
-    css.color = "color: " + color + ";\n";
-  }
-  borderradius = $(".set-border-radius").val();
-  if (borderradius !== "") {
-    css.borderradius = "border-radius: " + borderradius + ";\n";
-  }
-  border = $(".set-border").val();
-  if (border !== "") {
-    css.border = "border: " + border + ";\n";
-  }
-  bordercolor = $(".set-border-color").val();
-  if (bordercolor !== "") {
-    css.bordercolor = "border-color: " + bordercolor + ";\n";
-  }
-  margin = $(".set-margin").val();
-  if (margin !== "") {
-    css.margin = "margin: " + margin + ";\n";
-  }
-  padding = $(".set-padding").val();
-  if (padding !== "") {
-    css.padding = "padding: " + padding + ";\n";
-  }
-  opacity = $(".set-opacity").val();
-  if (opacity !== "") {
-    css.opacity = "opacity: " + opacity + ";\n";
-  }
-  backgroundcolor = $(".set-bk-color").val();
-  if (backgroundcolor !== "") {
-    css.backgroundcolor = "background-color: " + backgroundcolor + ";\n";
-  }
-  gradientcode = $(".set-gradient-code").val();
-  if (gradientcode !== "") {
-    css.gradientcode = "" + gradientcode + ";\n";
-  }
-  shadowcode = $(".set-shadow-code").val();
-  if (shadowcode !== "") {
-    css.shadowcode = "" + shadowcode + ";\n";
-  }
+};
+
+jsonToClass = function(div) {
+  var code, elid, stylewrapper;
   elid = div.data("elid");
   if ($("#style-" + elid).length === 0) {
     stylewrapper = $("<style id='style-" + elid + "'></style>");
     $("head").append(stylewrapper);
   }
-  code = ("#elid-" + elid + " {\n") + displayCSSChunk(css.width) + displayCSSChunk(css.height) + displayCSSChunk(css.top) + displayCSSChunk(css.left) + displayCSSChunk(css.fontfamily) + displayCSSChunk(css.fontsize) + displayCSSChunk(css.lineheight) + displayCSSChunk(css.fontweight) + displayCSSChunk(css.textalign) + displayCSSChunk(css.color) + displayCSSChunk(css.borderradius) + displayCSSChunk(css.border) + displayCSSChunk(css.bordercolor) + displayCSSChunk(css.margin) + displayCSSChunk(css.padding) + displayCSSChunk(css.opacity) + displayCSSChunk(css.backgroundcolor) + displayCSSChunk(css.gradientcode) + displayCSSChunk(css.shadowcode) + "}";
+  code = ("#elid-" + elid + " {\n") + displayCSSChunk("width", styles[elid].width) + displayCSSChunk("height", styles[elid].height) + displayCSSChunk("top", styles[elid].top) + displayCSSChunk("left", styles[elid].left) + displayCSSChunk("font-family", styles[elid].fontfamily) + displayCSSChunk("font-size", styles[elid].fontsize) + displayCSSChunk("line-height", "", styles[elid].lineheight) + displayCSSChunk("font-weight", styles[elid].fontweight) + displayCSSChunk("text-align", styles[elid].textalign) + displayCSSChunk("color", styles[elid].color) + displayCSSChunk("border-radius", styles[elid].borderradius) + displayCSSChunk("border", styles[elid].border) + displayCSSChunk("border-color", styles[elid].bordercolor) + displayCSSChunk("margin", styles[elid].margin) + displayCSSChunk("padding", styles[elid].padding) + displayCSSChunk("opacity", styles[elid].opacity) + displayCSSChunk("background-color", styles[elid].backgroundcolor) + displayCSSChunk(false, styles[elid].gradientcode) + displayCSSChunk(false, styles[elid].shadowcode) + "}";
   return $("#style-" + elid).html(code);
 };
 
-moveInlineStyle = function(div) {
+inlineToPanel = function(div) {
   var h, l, t, w;
   w = div.css("width");
   h = div.css("height");
@@ -246,13 +239,19 @@ moveInlineStyle = function(div) {
   $(".set-size-h").val(h);
   $(".set-pos-top").val(t);
   $(".set-pos-left").val(l);
-  div.attr("style", "top: " + t + "; left: " + l);
-  return updateStyle(div);
+  return div.attr("style", "top: " + t + "; left: " + l);
 };
 
 makeActive = function(div) {
   $(".el-active").removeClass("el-active");
-  return div.addClass("el-active");
+  div.addClass("el-active");
+  if (styles[div.data("elid")] !== void 0) {
+    jsonToPanel(div);
+    return jsonToClass(div);
+  } else {
+    panelToJSON(div);
+    return jsonToClass(div);
+  }
 };
 
 updateClasses = function(div) {

@@ -7,7 +7,7 @@
 
   <style>
   .defaultbox {
-    width: 180px;
+    width: 200px;
     height: 50px;
     background-color: #DDD;
     top: 10px; 
@@ -31,9 +31,9 @@
     </div>
     <div class="workpanel">
 
-      <label>Page Dimensions</label>
-      <input type="text" class="pageWidth input-num" placeholder="width">
-      <input type="text" class="pageHeight input-num" placeholder="height">
+      <label>Page (x, y)</label>
+      <input type="text" class="pageWidth input-num" placeholder="1080px">
+      <input type="text" class="pageHeight input-num" placeholder="100%">
       <div class="nf-btn updatePageDim">Update</div>
 
       <div style="height: 10px"></div>
@@ -43,21 +43,21 @@
       
       <hr />
       <div class="css-block">
-        <label>position</label>
-        <input type="text" class="input-num elidstyle set-pos-left" placeholder="width">
-        <input type="text" class="input-num elidstyle set-pos-top" placeholder="height">
+        <label>position (x, y)</label>
+        <input type="text" class="input-num elidstyle set-pos-left" placeholder="20px">
+        <input type="text" class="input-num elidstyle set-pos-top" placeholder="20px">
         <br />
 
-        <label>size</label>
-        <input type="text" class="input-num elidstyle set-size-w" placeholder="width">
-        <input type="text" class="input-num elidstyle set-size-h" placeholder="height">
+        <label>size (x, y)</label>
+        <input type="text" class="input-num elidstyle set-size-w" placeholder="200px">
+        <input type="text" class="input-num elidstyle set-size-h" placeholder="50px">
         <br />
       </div>
 
       <div class="css-block">
         <h1>text</h1>
         <label>font color</label>
-        <input type="text" class="input-color elidstyle set-color" placeholder="" value="#888888">
+        <input type="text" class="input-color elidstyle set-color" placeholder="#888888" value="">
         <br />
 
         <label>size/weight/height</label>
@@ -67,18 +67,18 @@
         <br />
 
         <label>text align</label>
-        <input type="text" class="input-num4 elidstyle set-text-align" placeholder="" value="center">
+        <input type="text" class="input-num4 elidstyle set-text-align" placeholder="center" value="">
         <br />
 
         <label>font family</label>
-        <input type="text" class="input-num4 elidstyle set-font-family" placeholder="">
+        <input type="text" class="input-num4 elidstyle set-font-family" placeholder="Helvetica, Arial">
         <br />
       </div>
 
       <div class="css-block">
         <h1>background</h1>
         <label>fills</label>
-        <input type="text" class="input-color elidstyle set-bk-color" placeholder="">
+        <input type="text" class="input-color elidstyle set-bk-color" placeholder="#EEEEEE">
         <br />
 
         <label>gradient</label>
@@ -95,12 +95,12 @@
       <div class="css-block">
         <h1>border</h1>
         <label>radius</label>
-        <input type="text" class="input-num4 elidstyle set-border-radius" placeholder="" value="4px">
+        <input type="text" class="input-num4 elidstyle set-border-radius" placeholder="4px" value="">
         <br />
 
         <label>border & color</label>
-        <input type="text" class="input-num elidstyle set-border" placeholder="" value="solid 1px">
-        <input type="text" class="input-color elidstyle set-border-color" placeholder="" value="#BBBBBB">        
+        <input type="text" class="input-num elidstyle set-border" placeholder="solid 1px" value="">
+        <input type="text" class="input-color elidstyle set-border-color" placeholder="#BBBBBB" value="">        
         <br />
       </div>
 
@@ -131,11 +131,11 @@
       <div class="css-block">
         <h1>spacing</h1>
         <label>margin</label>
-        <input type="text" class="input-num4 elidstyle set-margin" placeholder="">
+        <input type="text" class="input-num4 elidstyle set-margin" placeholder="20px 0px">
         <br />
 
         <label>padding</label>
-        <input type="text" class="input-num4 elidstyle set-padding" placeholder="">
+        <input type="text" class="input-num4 elidstyle set-padding" placeholder="10px">
         <br />
       </div>
 
