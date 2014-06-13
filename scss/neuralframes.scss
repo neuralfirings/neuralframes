@@ -70,6 +70,9 @@ $workheight: 600px;
     color: #EEE;
     min-width: 100px;
   }
+  .css-block {
+    margin: 3px 0px;
+  }
   .minicolors-theme-default .minicolors-swatch {
     top: 0px;
     left: 0px;
@@ -91,6 +94,9 @@ $workheight: 600px;
   }
   .input-num {
     width: 50px;
+  }
+  .input-num-small {
+    width: 24px;
   }
   .input-num4 {
     width: 104px;

@@ -1,4 +1,4 @@
-var getColorLuminance, makeActive, moveInlineStyle, updateClasses, updateStyle;
+var displayCSSChunk, getColorLuminance, hex, hexDigits, makeActive, moveInlineStyle, rgb2hex, setDefaultStyle, updateClasses, updateStyle;
 
 $(document).ready(function() {
   var editor, elid;
@@ -12,7 +12,13 @@ $(document).ready(function() {
     autoStrip: true,
     autoIndent: true
   });
-  $(".input-color").minicolors();
+  $(".input-color").minicolors({
+    position: 'bottom right'
+  });
+  $(document).on("dblclick", ".el", function() {
+    $(this).find(".el-content").attr("contentEditable", true).focus();
+    return console.log("hi");
+  });
   $(".css-includes").keyup(function() {
     return $(".el-active").attr("class", "el el-box el-active").addClass($(this).val());
   });
@@ -23,13 +29,44 @@ $(document).ready(function() {
   $(".elidstyle").keyup(function() {
     return updateStyle($(".el-active"));
   });
-  $(".helper-gradient").keyup(function() {
+  $(".elidstyle").change(function() {
+    return updateStyle($(".el-active"));
+  });
+  $(".set-gradient").keyup(function() {
     var code, darkerhex, hex;
-    hex = $(".helper-colorhex").val();
+    hex = $(".set-bk-color").val();
     darkerhex = getColorLuminance(hex, -$(this).val());
-    console.log(darkerhex);
     code = "background-image: -o-linear-gradient(-90deg, " + hex + " 0%, " + darkerhex + " 100%);\nbackground-image: -moz-linear-gradient(-90deg, " + hex + " 0%, " + darkerhex + " 100%);\nbackground-image: -ms-linear-gradient(-90deg, " + hex + " 0%, " + darkerhex + " 100%);\nbackground-image: linear-gradient(-180deg, " + hex + " 0%, " + darkerhex + " 100%);";
-    return $(".helper-gradient-code").html(code);
+    return $(".set-gradient-code").html(code);
+  });
+  $(".set-shadow").bind("keyup change", function(e) {
+    var b, c, code, innershadowcode, outershadowcode, s, x, y;
+    x = $(".set-outershadow-x").val();
+    y = $(".set-outershadow-y").val();
+    b = $(".set-outershadow-b").val();
+    s = $(".set-outershadow-s").val();
+    c = $(".set-outershadow-c").val();
+    if ($(".set-outershadow-c").val() !== "") {
+      outershadowcode = "" + x + "px " + y + "px " + b + "px " + s + "px " + c;
+    }
+    x = $(".set-innershadow-x").val();
+    y = $(".set-innershadow-y").val();
+    b = $(".set-innershadow-b").val();
+    s = $(".set-innershadow-s").val();
+    c = $(".set-innershadow-c").val();
+    if ($(".set-innershadow-c").val() !== "") {
+      innershadowcode = "inset " + x + "px " + y + "px " + b + "px " + s + "px " + c;
+    }
+    if (outershadowcode !== void 0 && innershadowcode === void 0) {
+      code = "-moz-box-shadow: " + outershadowcode + "; \nbox-shadow: " + outershadowcode + ";";
+    } else if (outershadowcode === void 0 && innershadowcode !== void 0) {
+      code = "-moz-box-shadow: " + innershadowcode + "; \nbox-shadow: " + innershadowcode + ";";
+    } else if (outershadowcode !== void 0 && innershadowcode !== void 0) {
+      code = "-moz-box-shadow: " + outershadowcode + ", " + innershadowcode + "; \nbox-shadow: " + outershadowcode + ", " + innershadowcode + ";";
+    } else {
+      code = "";
+    }
+    return $(".set-shadow-code").html(code);
   });
   $(".updatePageDim").click(function() {
     var h, pageDiv, w;
@@ -47,9 +84,11 @@ $(document).ready(function() {
     return $(".workspace").css("background", "#FFFFFF").css("width", w + "px").css("height", h + "px");
   });
   elid = 0;
-  return $(".addBox").click(function() {
+  $(".addBox").click(function() {
     var boxDiv;
+    setDefaultStyle();
     boxDiv = $("<div class='el el-box' id='elid-" + elid + "' data-elid='" + elid + "'></div>");
+    boxDiv.append($("<div class='el-content'></div>"));
     boxDiv.addClass("defaultbox");
     boxDiv.draggable({
       snap: true,
@@ -72,36 +111,133 @@ $(document).ready(function() {
       makeActive($(this));
       return updateClasses($(this));
     });
+    updateStyle(boxDiv);
     $(".workspace").append(boxDiv);
     return elid++;
   });
+  return $(".createclass").click(function() {
+    var css, currcss;
+    elid = $(".el-active").data("elid");
+    css = $("#style-" + elid).html();
+    css = css.replace("#elid-" + elid, ".newstyle");
+    currcss = $(".css-editor").text();
+    return $(".css-editor").text(css + "\n" + currcss);
+  });
 });
 
+setDefaultStyle = function() {
+  $(".set-pos-top").val("20px");
+  return $(".set-pos-left").val("20px");
+};
+
+displayCSSChunk = function(css) {
+  if (css === void 0) {
+    return "";
+  } else {
+    return "  " + css;
+  }
+};
+
 updateStyle = function(div) {
-  var css, elid, height, left, stylewrapper, top, width;
+  var backgroundcolor, border, bordercolor, borderradius, code, color, css, elid, fontfamily, fontsize, fontweight, gradientcode, height, left, lineheight, margin, opacity, padding, shadowcode, stylewrapper, textalign, top, width;
+  css = {};
   width = $(".set-size-w").val();
+  if (width !== "") {
+    css.width = "width: " + width + ";\n";
+  }
   height = $(".set-size-h").val();
+  if (height !== "") {
+    css.height = "height: " + height + ";\n";
+  }
   top = $(".set-pos-top").val();
+  if (top !== "") {
+    css.top = "top: " + top + ";\n";
+  }
   left = $(".set-pos-left").val();
+  if (left !== "") {
+    css.left = "left: " + left + ";\n";
+  }
+  textalign = $(".set-text-align").val();
+  if (textalign !== "") {
+    css.textalign = "text-align: " + textalign + ";\n";
+  }
+  fontfamily = $(".set-font-family").val();
+  if (fontfamily !== "") {
+    css.fontfamily = "font-family: " + fontfamily + ";\n";
+  }
+  fontweight = $(".set-font-weight").val();
+  if (fontweight !== "") {
+    css.fontweight = "font-weight: " + fontweight + ";\n";
+  }
+  fontsize = $(".set-font-size").val();
+  if (fontsize !== "") {
+    css.fontsize = "font-size: " + fontsize + ";\n";
+  }
+  lineheight = $(".set-line-height").val();
+  if (lineheight !== "") {
+    css.lineheight = "line-height: " + lineheight + ";\n";
+  }
+  color = $(".set-color").val();
+  if (color !== "") {
+    css.color = "color: " + color + ";\n";
+  }
+  borderradius = $(".set-border-radius").val();
+  if (borderradius !== "") {
+    css.borderradius = "border-radius: " + borderradius + ";\n";
+  }
+  border = $(".set-border").val();
+  if (border !== "") {
+    css.border = "border: " + border + ";\n";
+  }
+  bordercolor = $(".set-border-color").val();
+  if (bordercolor !== "") {
+    css.bordercolor = "border-color: " + bordercolor + ";\n";
+  }
+  margin = $(".set-margin").val();
+  if (margin !== "") {
+    css.margin = "margin: " + margin + ";\n";
+  }
+  padding = $(".set-padding").val();
+  if (padding !== "") {
+    css.padding = "padding: " + padding + ";\n";
+  }
+  opacity = $(".set-opacity").val();
+  if (opacity !== "") {
+    css.opacity = "opacity: " + opacity + ";\n";
+  }
+  backgroundcolor = $(".set-bk-color").val();
+  if (backgroundcolor !== "") {
+    css.backgroundcolor = "background-color: " + backgroundcolor + ";\n";
+  }
+  gradientcode = $(".set-gradient-code").html();
+  if (gradientcode !== "") {
+    css.gradientcode = "" + gradientcode + ";\n";
+  }
+  shadowcode = $(".set-shadow-code").html();
+  if (shadowcode !== "") {
+    css.shadowcode = "" + shadowcode + ";\n";
+  }
   elid = div.data("elid");
   if ($("#style-" + elid).length === 0) {
     stylewrapper = $("<style id='style-" + elid + "'></style>");
     $("head").append(stylewrapper);
   }
-  css = "#elid-" + elid + " {" + "width: " + width + ";" + "height: " + height + ";" + "top: " + top + ";" + "left: " + left + ";" + "}";
-  return $("#style-" + elid).html(css);
+  code = ("#elid-" + elid + " {\n") + displayCSSChunk(css.width) + displayCSSChunk(css.height) + displayCSSChunk(css.top) + displayCSSChunk(css.left) + displayCSSChunk(css.fontfamily) + displayCSSChunk(css.fontsize) + displayCSSChunk(css.lineheight) + displayCSSChunk(css.fontweight) + displayCSSChunk(css.textalign) + displayCSSChunk(css.color) + displayCSSChunk(css.borderradius) + displayCSSChunk(css.border) + displayCSSChunk(css.bordercolor) + displayCSSChunk(css.margin) + displayCSSChunk(css.padding) + displayCSSChunk(css.opacity) + displayCSSChunk(css.backgroundcolor) + displayCSSChunk(css.gradientcode) + displayCSSChunk(css.shadowcode) + "}";
+  return $("#style-" + elid).html(code);
 };
 
 moveInlineStyle = function(div) {
-  var h, l, t, w;
+  var bk, h, l, t, w;
   w = div.css("width");
   h = div.css("height");
   t = div.css("top");
   l = div.css("left");
+  bk = rgb2hex(div.css("background-color"));
   $(".set-size-w").val(w);
   $(".set-size-h").val(h);
   $(".set-pos-top").val(t);
   $(".set-pos-left").val(l);
+  $(".set-bk-color").val(bk);
   div.attr("style", "");
   return updateStyle(div);
 };
@@ -143,3 +279,18 @@ getColorLuminance = function(hex, lum) {
   }
   return rgb;
 };
+
+rgb2hex = function(rgb) {
+  rgb = rgb.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
+  return "#" + hex(rgb[1]) + hex(rgb[2]) + hex(rgb[3]);
+};
+
+hex = function(x) {
+  if (isNaN(x)) {
+    return "00";
+  } else {
+    return hexDigits[(x - x % 16) / 16] + hexDigits[x % 16];
+  }
+};
+
+hexDigits = new Array("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f");

@@ -8,7 +8,7 @@
   <script src="public/js/application.js"></script>
   <link href="public/css/application.css" rel="stylesheet">
 
-  <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
 
   <style id="userstyle"></style>
 </head>
@@ -41,48 +41,85 @@
         <input type="text" class="input-num elidstyle set-size-h" placeholder="height">
         <br />
 
+      <label>text align</label>
+        <input type="text" class="input-num4 elidstyle set-text-align" placeholder="" value="center">
+        <br />
+
+      <label>font size</label>
+        <input type="text" class="input-num4 elidstyle set-font-size" placeholder="">
+        <br />
+
+      <label>line height</label>
+        <input type="text" class="input-num4 elidstyle set-line-height" placeholder="" value="1.5em">
+        <br />
+
+      <label>font family</label>
+        <input type="text" class="input-num4 elidstyle set-font-family" placeholder="">
+        <br />
+
+      <label>font weight</label>
+        <input type="text" class="input-num4 elidstyle set-font-weight" placeholder="">
+        <br />
+
+      <label>font color</label>
+        <input type="text" class="input-color elidstyle set-color" placeholder="" value="#888888">
+        <br />
+
       <label>radius</label>
-        <input type="text" class="input-num4" placeholder="">
+        <input type="text" class="input-num4 elidstyle set-border-radius" placeholder="" value="4px">
         <br />
 
       <label>opacity</label>
-        <input type="text" class="input-num" placeholder="0-1">
+        <input type="text" class="input-num elidstyle set-opacity" placeholder="0-1">
         <br />
 
       <label>fills</label>
-        <input type="text" class="input-color set-bk-color" placeholder="">
+        <input type="text" class="input-color elidstyle set-bk-color" placeholder="">
         <br />
 
       <label>gradient</label>
-        <input type="text" class="input-num" placeholder="0-1">
-        <br />
+          <input type="text" class="input-num elidstyle set-gradient" placeholder="0-1">
+          <br />
+          <textarea class="elidstyle set-gradient-code" style="width: 100%"></textarea>
+          <br />
 
       <label>border</label>
-        <input type="text" class="input-num" placeholder="">
+        <input type="text" class="input-num elidstyle set-border" placeholder="" value="solid 1px">
         <br />
 
       <label>border color</label>
-        <input type="text" class="input-color set-border-color" placeholder="">
+        <input type="text" class="input-color elidstyle set-border-color" placeholder="" value="#BBBBBB">
         <br />
 
-      <label>text color</label>
-        <input type="text" class="input-color" placeholder="">
+      <div class="css-block">
+        <label>shadow</label>
+        <input type="text" class="input-color elidstyle set-shadow set-outershadow-c" placeholder="">
         <br />
+        <label>(x, y, blur, spread)</label>
+        <input type="text" class="input-num-small elidstyle set-shadow set-outershadow-x" placeholder="x" value="1">
+        <input type="text" class="input-num-small elidstyle set-shadow set-outershadow-y" placeholder="y" value="1">
+        <input type="text" class="input-num-small elidstyle set-shadow set-outershadow-b" placeholder="blur" value="3">
+        <input type="text" class="input-num-small elidstyle set-shadow set-outershadow-s" placeholder="spread" value="0">
+        <br />
+        <label>inner shadow</label>
+        <input type="text" class="input-color elidstyle set-shadow set-innershadow-c" placeholder="">
+        <br />
+        <label>(x, y, blur, spread)</label>
+        <input type="text" class="input-num-small elidstyle set-shadow set-innershadow-x" placeholder="x" value="0">
+        <input type="text" class="input-num-small elidstyle set-shadow set-innershadow-y" placeholder="y" value="0">
+        <input type="text" class="input-num-small elidstyle set-shadow set-innershadow-b" placeholder="blur" value="3">
+        <input type="text" class="input-num-small elidstyle set-shadow set-innershadow-s" placeholder="spread" value="0">
+        <br />
+        <textarea class="elidstyle set-shadow-code" style="width: 100%"></textarea>
+      </div>
 
-      <label>shadow</label>
-        <input type="text" class="input-num" placeholder="">
-        <br />
-
-      <label>inner</label>
-        <input type="text" class="input-num" placeholder="">
-        <br />
 
       <label>margin</label>
-        <input type="text" class="input-num4" placeholder="">
+        <input type="text" class="input-num4 elidstyle set-margin" placeholder="">
         <br />
 
       <label>padding</label>
-        <input type="text" class="input-num4" placeholder="">
+        <input type="text" class="input-num4 elidstyle set-padding" placeholder="">
         <br />
 
       <label></label>
@@ -96,18 +133,6 @@
         <br />
 
       <div style="height: 10px"></div>
-
-      <label>Helper Tools</label><br />
-      <label>color picker: </label>
-        <input type="text" class="input-color helper-colorhex" placeholder="">
-        <br />
-
-      <label>gradient: </label>
-        <input type="text" class="input-num helper-gradient" placeholder="0-1">
-        <br />
-      
-      <label> </label><textarea class="helper-gradient-code" style="width: auto"></textarea>
-      
 
       <label>CSS Editor</label><br />
       <textarea class="css-editor" id="css-editor"></textarea>

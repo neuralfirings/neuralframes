@@ -56,6 +56,8 @@
   .workpanel label {
     color: #EEE;
     min-width: 100px; }
+  .workpanel .css-block {
+    margin: 3px 0px; }
   .workpanel .minicolors-theme-default .minicolors-swatch {
     top: 0px;
     left: 0px;
@@ -72,6 +74,8 @@
     width: 100%; }
   .workpanel .input-num {
     width: 50px; }
+  .workpanel .input-num-small {
+    width: 24px; }
   .workpanel .input-num4 {
     width: 104px; }
   .workpanel .input-block {
