@@ -246,7 +246,7 @@ jsonToClass = (div) ->
     displayCSSChunk("left", styles[elid].left) + 
     displayCSSChunk("font-family", styles[elid].fontfamily) + 
     displayCSSChunk("font-size", styles[elid].fontsize) + 
-    displayCSSChunk("line-height", "", styles[elid].lineheight) + 
+    displayCSSChunk("line-height", styles[elid].lineheight) + 
     displayCSSChunk("font-weight", styles[elid].fontweight) + 
     displayCSSChunk("text-align", styles[elid].textalign) + 
     displayCSSChunk("color", styles[elid].color) + 
