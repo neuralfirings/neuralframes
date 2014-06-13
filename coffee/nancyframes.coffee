@@ -23,7 +23,7 @@ $(document).ready ->
 
   # Triggers to update style
   $(".css-includes").keyup () ->
-    $(".el-active").attr("class", "el el-box el-active").addClass($(this).val())
+    $(".el-active").attr("class", "el el-box el-active defaultbox").addClass($(this).val())
 
   $(".css-editor").keyup () ->
     # $(".el-box").attr("class", "el el-box defaultbox").addClass($(this).val())
@@ -46,7 +46,7 @@ $(document).ready ->
       background-image: linear-gradient(-180deg, #{hex} 0%, #{darkerhex} 100%);
     """
 
-    $(".set-gradient-code").html(code)
+    $(".set-gradient-code").val(code)
 
   $(".set-shadow").bind "keyup change", (e) ->
     x = $(".set-outershadow-x").val()
@@ -74,7 +74,7 @@ $(document).ready ->
     else
       code = ""
 
-    $(".set-shadow-code").html(code)
+    $(".set-shadow-code").val(code)
 
   # DRAGGABLES
   # Update Page Container
@@ -94,51 +94,69 @@ $(document).ready ->
     # $(".workspace").append pageDiv
 
   # Add a Box
-  elid = 0;
+  elidCtr = 0;
   $(".addBox").click () ->
-    setDefaultStyle() 
+    setDefaultStyle () ->
+      boxDiv = $ "<div class='el el-box' id='elid-" + elidCtr + "' data-elid='" + elidCtr + "'></div>"
+      boxDiv.append $ "<div class='el-content'></div>"
+      # boxDiv.css("width", "100px").css("height", "100px")
+      boxDiv.addClass("defaultbox")
+      boxDiv.draggable({
+        snap: true,
+        start: () ->
+          makeActive $(this)
+          updateClasses $(this)
+        stop: () ->
+          moveInlineStyle(boxDiv)
+      })
+      boxDiv.resizable({
+        stop: () ->
+          moveInlineStyle(boxDiv)
+      })
 
-    boxDiv = $ "<div class='el el-box' id='elid-" + elid + "' data-elid='" + elid + "'></div>"
-    boxDiv.append $ "<div class='el-content'></div>"
-    # boxDiv.css("width", "100px").css("height", "100px")
-    boxDiv.addClass("defaultbox")
-    boxDiv.draggable({
-      snap: true,
-      start: () ->
+      makeActive boxDiv
+      updateClasses boxDiv
+      # moveInlineStyle(boxDiv)
+      
+      boxDiv.click () ->
         makeActive $(this)
         updateClasses $(this)
-      stop: () ->
-        moveInlineStyle(boxDiv)
-    })
-    boxDiv.resizable({
-      stop: () ->
-        moveInlineStyle(boxDiv)
-    })
+      
+      updateStyle boxDiv
+      $(".workspace").append boxDiv
 
-    makeActive boxDiv
-    updateClasses boxDiv
-    # moveInlineStyle(boxDiv)
-    
-    boxDiv.click () ->
-      makeActive $(this)
-      updateClasses $(this)
-    
-    updateStyle boxDiv
-    $(".workspace").append boxDiv
-
-    elid++
+      elidCtr++
 
   # create class from elid style
   $(".createclass").click () ->
     elid = $(".el-active").data("elid")
     css = $("#style-" + elid).html()
     css = css.replace("#elid-" + elid, ".newstyle")
-    currcss = $(".css-editor").text()
-    $(".css-editor").text(css + "\n" + currcss)
+    currcss = $(".css-editor").val()
+    $(".css-editor").val(css + "\n" + currcss)
 
-setDefaultStyle = () ->
+  # reset to default, keep classes
+  $(".resetcss").click () ->
+    setDefaultStyle () ->
+      updateStyle($(".el-active"))
+
+setDefaultStyle = (callback) ->
+  $(".elidstyle").val("")
   $(".set-pos-top").val("20px")
   $(".set-pos-left").val("20px")
+  $(".set-size-w").val("200px")
+  $(".set-size-h").val("50px")
+  # $(".set-bk-color").val("#EEEEEE")
+  $(".set-outershadow-x").val("1")
+  $(".set-outershadow-y").val("1")
+  $(".set-outershadow-b").val("3")
+  $(".set-outershadow-s").val("0")
+  $(".set-innershadow-x").val("0")
+  $(".set-innershadow-y").val("0")
+  $(".set-innershadow-b").val("3")
+  $(".set-innershadow-s").val("0")
+
+  callback()
 
 displayCSSChunk = (css) ->
   if css == undefined
@@ -158,13 +176,13 @@ updateStyle = (div) ->
   if height != ""
     css.height = "height: #{height};\n" 
 
-  top = $(".set-pos-top").val()
-  if top != ""
-    css.top = "top: #{top};\n" 
+  # top = $(".set-pos-top").val()
+  # if top != ""
+  #   css.top = "top: #{top};\n" 
 
-  left = $(".set-pos-left").val()
-  if left != ""
-    css.left = "left: #{left};\n" 
+  # left = $(".set-pos-left").val()
+  # if left != ""
+  #   css.left = "left: #{left};\n" 
 
   textalign = $(".set-text-align").val()
   if textalign != ""
@@ -218,11 +236,11 @@ updateStyle = (div) ->
   if backgroundcolor != ""
     css.backgroundcolor = "background-color: #{backgroundcolor};\n" 
 
-  gradientcode = $(".set-gradient-code").html()
+  gradientcode = $(".set-gradient-code").val()
   if gradientcode != ""
     css.gradientcode = "#{gradientcode};\n" 
 
-  shadowcode = $(".set-shadow-code").html()
+  shadowcode = $(".set-shadow-code").val()
   if shadowcode != ""
     css.shadowcode = "#{shadowcode};\n" 
   
@@ -261,16 +279,16 @@ moveInlineStyle = (div) ->
   h = div.css("height")
   t = div.css("top")
   l = div.css("left")
-  bk = rgb2hex(div.css("background-color"))
+  # bk = rgb2hex(div.css("background-color"))
 
 
   $(".set-size-w").val(w)
   $(".set-size-h").val(h)
   $(".set-pos-top").val(t)
   $(".set-pos-left").val(l)
-  $(".set-bk-color").val(bk)
+  # $(".set-bk-color").val(bk)
 
-  div.attr("style", "")
+  div.attr("style", "top: #{t}; left: #{l}")
   updateStyle(div)
 
 makeActive = (div) ->

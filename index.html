@@ -4,13 +4,25 @@
   
   <script type="text/javascript" src="public/js/libraries.min.js"></script>
   <link href="public/css/libraries.css" rel="stylesheet">
+
+  <style>
+  .defaultbox {
+    width: 180px;
+    height: 50px;
+    background-color: #DDD;
+    top: 10px; 
+    left: 10px;
+    border: #BBB;
+  }
+  </style>
+
+  <style id="userstyle"></style>
   
   <script src="public/js/application.js"></script>
   <link href="public/css/application.css" rel="stylesheet">
 
   <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
 
-  <style id="userstyle"></style>
 </head>
 <body>
   <div>
@@ -27,71 +39,74 @@
       <div style="height: 10px"></div>
 
       <label>Actions</label>
-      <div class="nf-btn addBox">Add Box</div>
+      <div class="nf-btn nf-btn-primary addBox">Add Box</div>
       
       <hr />
-
-      <label>position</label>
+      <div class="css-block">
+        <label>position</label>
         <input type="text" class="input-num elidstyle set-pos-left" placeholder="width">
         <input type="text" class="input-num elidstyle set-pos-top" placeholder="height">
         <br />
 
-      <label>size</label>
+        <label>size</label>
         <input type="text" class="input-num elidstyle set-size-w" placeholder="width">
         <input type="text" class="input-num elidstyle set-size-h" placeholder="height">
         <br />
+      </div>
 
-      <label>text align</label>
-        <input type="text" class="input-num4 elidstyle set-text-align" placeholder="" value="center">
-        <br />
-
-      <label>font size</label>
-        <input type="text" class="input-num4 elidstyle set-font-size" placeholder="">
-        <br />
-
-      <label>line height</label>
-        <input type="text" class="input-num4 elidstyle set-line-height" placeholder="" value="1.5em">
-        <br />
-
-      <label>font family</label>
-        <input type="text" class="input-num4 elidstyle set-font-family" placeholder="">
-        <br />
-
-      <label>font weight</label>
-        <input type="text" class="input-num4 elidstyle set-font-weight" placeholder="">
-        <br />
-
-      <label>font color</label>
+      <div class="css-block">
+        <h1>text</h1>
+        <label>font color</label>
         <input type="text" class="input-color elidstyle set-color" placeholder="" value="#888888">
         <br />
 
-      <label>radius</label>
-        <input type="text" class="input-num4 elidstyle set-border-radius" placeholder="" value="4px">
+        <label>size/weight/height</label>
+        <input type="text" class="input-num elidstyle set-font-size" placeholder="12px">
+        <input type="text" class="input-num elidstyle set-font-weight" placeholder="400">
+        <input type="text" class="input-num elidstyle set-line-height" placeholder="40px" value="">
         <br />
 
-      <label>opacity</label>
-        <input type="text" class="input-num elidstyle set-opacity" placeholder="0-1">
+        <label>text align</label>
+        <input type="text" class="input-num4 elidstyle set-text-align" placeholder="" value="center">
         <br />
 
-      <label>fills</label>
+        <label>font family</label>
+        <input type="text" class="input-num4 elidstyle set-font-family" placeholder="">
+        <br />
+      </div>
+
+      <div class="css-block">
+        <h1>background</h1>
+        <label>fills</label>
         <input type="text" class="input-color elidstyle set-bk-color" placeholder="">
         <br />
 
-      <label>gradient</label>
-          <input type="text" class="input-num elidstyle set-gradient" placeholder="0-1">
-          <br />
-          <textarea class="elidstyle set-gradient-code" style="width: 100%"></textarea>
-          <br />
-
-      <label>border</label>
-        <input type="text" class="input-num elidstyle set-border" placeholder="" value="solid 1px">
+        <label>gradient</label>
+        <input type="text" class="input-num elidstyle set-gradient" placeholder="0-1">
+        <br />
+        <textarea class="elidstyle set-gradient-code" style="width: 100%"></textarea>
         <br />
 
-      <label>border color</label>
-        <input type="text" class="input-color elidstyle set-border-color" placeholder="" value="#BBBBBB">
+        <label>opacity</label>
+        <input type="text" class="input-num elidstyle set-opacity" placeholder="0-1">
         <br />
+      </div>
 
       <div class="css-block">
+        <h1>border</h1>
+        <label>radius</label>
+        <input type="text" class="input-num4 elidstyle set-border-radius" placeholder="" value="4px">
+        <br />
+
+        <label>border & color</label>
+        <input type="text" class="input-num elidstyle set-border" placeholder="" value="solid 1px">
+        <input type="text" class="input-color elidstyle set-border-color" placeholder="" value="#BBBBBB">        
+        <br />
+      </div>
+
+
+      <div class="css-block">
+        <h1>shadows</h1>
         <label>shadow</label>
         <input type="text" class="input-color elidstyle set-shadow set-outershadow-c" placeholder="">
         <br />
@@ -113,19 +128,20 @@
         <textarea class="elidstyle set-shadow-code" style="width: 100%"></textarea>
       </div>
 
-
-      <label>margin</label>
+      <div class="css-block">
+        <h1>spacing</h1>
+        <label>margin</label>
         <input type="text" class="input-num4 elidstyle set-margin" placeholder="">
         <br />
 
-      <label>padding</label>
+        <label>padding</label>
         <input type="text" class="input-num4 elidstyle set-padding" placeholder="">
         <br />
+      </div>
 
-      <label></label>
-        <div class="nf-btn createclass">Create Class</div>
-
-
+      <center>
+        <div class="nf-btn nf-btn-primary createclass">Create Class</div>&nbsp;&nbsp;<div class="nf-btn resetcss">Reset</div>
+      </center>
       <hr />
 
       <label>Included classes</label>
@@ -136,6 +152,8 @@
 
       <label>CSS Editor</label><br />
       <textarea class="css-editor" id="css-editor"></textarea>
+      <div style="height: 10px"></div>
+      <label>dummy color tool</label><input type="text" class="input-color" />
     </div>
     <div class="clearfix"></div>
   </div>

@@ -19,6 +19,20 @@ $workheight: 600px;
   background-color: #DDDDDD;
   border-bottom: 2px solid #DDDDDD;
 }
+.nf-btn-block {
+  width: 100%;
+}
+.nf-btn-primary {
+  color: #e6e6e6;
+  background-color: #8f4040;
+  border: 1px solid #8f4040;
+  border-bottom: solid 3px #402a2a;
+}
+.nf-btn-primary:hover {
+  border: 1px solid #402a2a;
+  border-bottom-color: #402a2a;
+  background-color: #402a2a;
+}
 
 .workspace-container {
   background-color: #EEEEEE;
@@ -42,14 +56,6 @@ $workheight: 600px;
     .el {
       position: absolute !important;
     }
-    .defaultbox {
-      width: 180px;
-      height: 50px;
-      background-color: #DDD;
-      top: 10px; 
-      left: 10px;
-      border: #BBB;
-    }
   }
 }
 
@@ -71,7 +77,17 @@ $workheight: 600px;
     min-width: 100px;
   }
   .css-block {
-    margin: 3px 0px;
+    padding-bottom: 5px;
+    margin-bottom: 5px;
+    border-bottom: dotted 1px #6A6A6A;
+    h1 {
+      font-size: 12px;
+      color: #AAA;
+      margin: 0px;
+      padding: 0px;
+      line-height: 1.2em;
+      text-transform: uppercase;
+    }
   }
   .minicolors-theme-default .minicolors-swatch {
     top: 0px;

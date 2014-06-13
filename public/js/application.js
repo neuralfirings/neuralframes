@@ -1,7 +1,7 @@
 var displayCSSChunk, getColorLuminance, hex, hexDigits, makeActive, moveInlineStyle, rgb2hex, setDefaultStyle, updateClasses, updateStyle;
 
 $(document).ready(function() {
-  var editor, elid;
+  var editor, elidCtr;
   editor = new Behave({
     textarea: document.getElementById('css-editor'),
     replaceTab: true,
@@ -20,7 +20,7 @@ $(document).ready(function() {
     return console.log("hi");
   });
   $(".css-includes").keyup(function() {
-    return $(".el-active").attr("class", "el el-box el-active").addClass($(this).val());
+    return $(".el-active").attr("class", "el el-box el-active defaultbox").addClass($(this).val());
   });
   $(".css-editor").keyup(function() {
     $("#userstyle").empty();
@@ -37,7 +37,7 @@ $(document).ready(function() {
     hex = $(".set-bk-color").val();
     darkerhex = getColorLuminance(hex, -$(this).val());
     code = "background-image: -o-linear-gradient(-90deg, " + hex + " 0%, " + darkerhex + " 100%);\nbackground-image: -moz-linear-gradient(-90deg, " + hex + " 0%, " + darkerhex + " 100%);\nbackground-image: -ms-linear-gradient(-90deg, " + hex + " 0%, " + darkerhex + " 100%);\nbackground-image: linear-gradient(-180deg, " + hex + " 0%, " + darkerhex + " 100%);";
-    return $(".set-gradient-code").html(code);
+    return $(".set-gradient-code").val(code);
   });
   $(".set-shadow").bind("keyup change", function(e) {
     var b, c, code, innershadowcode, outershadowcode, s, x, y;
@@ -66,7 +66,7 @@ $(document).ready(function() {
     } else {
       code = "";
     }
-    return $(".set-shadow-code").html(code);
+    return $(".set-shadow-code").val(code);
   });
   $(".updatePageDim").click(function() {
     var h, pageDiv, w;
@@ -83,51 +83,69 @@ $(document).ready(function() {
     h = $(".pageHeight").val();
     return $(".workspace").css("background", "#FFFFFF").css("width", w + "px").css("height", h + "px");
   });
-  elid = 0;
+  elidCtr = 0;
   $(".addBox").click(function() {
-    var boxDiv;
-    setDefaultStyle();
-    boxDiv = $("<div class='el el-box' id='elid-" + elid + "' data-elid='" + elid + "'></div>");
-    boxDiv.append($("<div class='el-content'></div>"));
-    boxDiv.addClass("defaultbox");
-    boxDiv.draggable({
-      snap: true,
-      start: function() {
+    return setDefaultStyle(function() {
+      var boxDiv;
+      boxDiv = $("<div class='el el-box' id='elid-" + elidCtr + "' data-elid='" + elidCtr + "'></div>");
+      boxDiv.append($("<div class='el-content'></div>"));
+      boxDiv.addClass("defaultbox");
+      boxDiv.draggable({
+        snap: true,
+        start: function() {
+          makeActive($(this));
+          return updateClasses($(this));
+        },
+        stop: function() {
+          return moveInlineStyle(boxDiv);
+        }
+      });
+      boxDiv.resizable({
+        stop: function() {
+          return moveInlineStyle(boxDiv);
+        }
+      });
+      makeActive(boxDiv);
+      updateClasses(boxDiv);
+      boxDiv.click(function() {
         makeActive($(this));
         return updateClasses($(this));
-      },
-      stop: function() {
-        return moveInlineStyle(boxDiv);
-      }
+      });
+      updateStyle(boxDiv);
+      $(".workspace").append(boxDiv);
+      return elidCtr++;
     });
-    boxDiv.resizable({
-      stop: function() {
-        return moveInlineStyle(boxDiv);
-      }
-    });
-    makeActive(boxDiv);
-    updateClasses(boxDiv);
-    boxDiv.click(function() {
-      makeActive($(this));
-      return updateClasses($(this));
-    });
-    updateStyle(boxDiv);
-    $(".workspace").append(boxDiv);
-    return elid++;
   });
-  return $(".createclass").click(function() {
-    var css, currcss;
+  $(".createclass").click(function() {
+    var css, currcss, elid;
     elid = $(".el-active").data("elid");
     css = $("#style-" + elid).html();
     css = css.replace("#elid-" + elid, ".newstyle");
-    currcss = $(".css-editor").text();
-    return $(".css-editor").text(css + "\n" + currcss);
+    currcss = $(".css-editor").val();
+    return $(".css-editor").val(css + "\n" + currcss);
+  });
+  return $(".resetcss").click(function() {
+    return setDefaultStyle(function() {
+      return updateStyle($(".el-active"));
+    });
   });
 });
 
-setDefaultStyle = function() {
+setDefaultStyle = function(callback) {
+  $(".elidstyle").val("");
   $(".set-pos-top").val("20px");
-  return $(".set-pos-left").val("20px");
+  $(".set-pos-left").val("20px");
+  $(".set-size-w").val("200px");
+  $(".set-size-h").val("50px");
+  $(".set-outershadow-x").val("1");
+  $(".set-outershadow-y").val("1");
+  $(".set-outershadow-b").val("3");
+  $(".set-outershadow-s").val("0");
+  $(".set-innershadow-x").val("0");
+  $(".set-innershadow-y").val("0");
+  $(".set-innershadow-b").val("3");
+  $(".set-innershadow-s").val("0");
+  return callback();
 };
 
 displayCSSChunk = function(css) {
@@ -139,7 +157,7 @@ displayCSSChunk = function(css) {
 };
 
 updateStyle = function(div) {
-  var backgroundcolor, border, bordercolor, borderradius, code, color, css, elid, fontfamily, fontsize, fontweight, gradientcode, height, left, lineheight, margin, opacity, padding, shadowcode, stylewrapper, textalign, top, width;
+  var backgroundcolor, border, bordercolor, borderradius, code, color, css, elid, fontfamily, fontsize, fontweight, gradientcode, height, lineheight, margin, opacity, padding, shadowcode, stylewrapper, textalign, width;
   css = {};
   width = $(".set-size-w").val();
   if (width !== "") {
@@ -148,14 +166,6 @@ updateStyle = function(div) {
   height = $(".set-size-h").val();
   if (height !== "") {
     css.height = "height: " + height + ";\n";
-  }
-  top = $(".set-pos-top").val();
-  if (top !== "") {
-    css.top = "top: " + top + ";\n";
-  }
-  left = $(".set-pos-left").val();
-  if (left !== "") {
-    css.left = "left: " + left + ";\n";
   }
   textalign = $(".set-text-align").val();
   if (textalign !== "") {
@@ -209,11 +219,11 @@ updateStyle = function(div) {
   if (backgroundcolor !== "") {
     css.backgroundcolor = "background-color: " + backgroundcolor + ";\n";
   }
-  gradientcode = $(".set-gradient-code").html();
+  gradientcode = $(".set-gradient-code").val();
   if (gradientcode !== "") {
     css.gradientcode = "" + gradientcode + ";\n";
   }
-  shadowcode = $(".set-shadow-code").html();
+  shadowcode = $(".set-shadow-code").val();
   if (shadowcode !== "") {
     css.shadowcode = "" + shadowcode + ";\n";
   }
@@ -227,18 +237,16 @@ updateStyle = function(div) {
 };
 
 moveInlineStyle = function(div) {
-  var bk, h, l, t, w;
+  var h, l, t, w;
   w = div.css("width");
   h = div.css("height");
   t = div.css("top");
   l = div.css("left");
-  bk = rgb2hex(div.css("background-color"));
   $(".set-size-w").val(w);
   $(".set-size-h").val(h);
   $(".set-pos-top").val(t);
   $(".set-pos-left").val(l);
-  $(".set-bk-color").val(bk);
-  div.attr("style", "");
+  div.attr("style", "top: " + t + "; left: " + l);
   return updateStyle(div);
 };
 
