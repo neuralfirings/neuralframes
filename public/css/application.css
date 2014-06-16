@@ -1,3 +1,6 @@
+.requirelogin {
+  display: none; }
+
 .nf-btn {
   border-radius: 2px;
   background-color: #EEEEEE;
@@ -63,11 +66,31 @@
   .workpanel label {
     color: #EEE;
     min-width: 100px; }
+  .workpanel h1 {
+    font-size: 12px;
+    width: 100%;
+    display: block;
+    background-color: #999;
+    padding: 5px;
+    text-align: center;
+    margin-left: -10px; }
+  .workpanel .signin-section {
+    color: #EEE;
+    display: none; }
+  .workpanel .signedin-section {
+    color: #EEE;
+    display: none; }
+  .workpanel .save {
+    display: none; }
+  .workpanel .canvas-list {
+    display: none; }
+  .workpanel .new-canvas-title {
+    display: none; }
   .workpanel .css-block {
     padding-bottom: 5px;
     margin-bottom: 5px;
     border-bottom: dotted 1px #6A6A6A; }
-    .workpanel .css-block h1 {
+    .workpanel .css-block h2 {
       font-size: 12px;
       color: #AAA;
       margin: 0px;

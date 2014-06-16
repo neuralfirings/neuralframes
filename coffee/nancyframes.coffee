@@ -1,4 +1,105 @@
-$(document).ready ->
+$(document).ready () ->
+
+  #FIREBASE
+  fb = new Firebase("https://neuralframes.firebaseio.com/");
+
+  auth = new FirebaseSimpleLogin fb, (error, user) ->
+    if !error and user
+      console.log ("Welcome back, #{user} (#{user.id})")
+      $(".requirelogin").show()
+      $(".signin-section").hide()
+      $(".signedin-section").show()
+      $(".canvas-list").show()
+      $(".new-canvas-title").show()
+      $(".hello-msg").text("Signed in: #{user.email}")
+
+      # show list
+      titlelist = fb.child("userdata").child(user.id).child("frames")
+      titlelist.on "value", (snapshot) ->
+        if snapshot.val() != null
+          $(".frames-list").empty()
+          for key, value of snapshot.val()
+            $(".frames-list").append("<option value='#{key}' data-key='#{key}'>#{value.title}</option>")
+          $(".frames-list").append("<option value='framenew'>New Entry</option>")
+
+      # show new title
+      if $(".frames-list").val() == 'framenew'
+        $(".frame-title-container").show()
+
+      $(".frames-list").change () ->
+        if $(this).val() == 'framenew'
+          $(".frame-title-container").show()
+        else
+          $(".frame-title-container").hide()
+
+
+      # save button
+      $(".save").show()
+      $(".save").click () ->
+        title = $(".frame-title").val()
+        if $(".frames-list").val() == "framenew" and (title == "" or title == undefined)
+          alert("no title")
+        else
+          if $(".frames-list").val() == "framenew"
+            entry_key = fb.child("userdata").child(user.id).child("frames").push({title: title})
+            entry_id = entry_key.name()
+          else
+            entry_id = $(".frames-list").val()
+          
+          entry = fb.child("userdata").child(user.id).child("frames").child(entry_id)
+          
+          for style, index in window.styles    
+            div = $("#elid-"+index)
+            entry.child("elements").child(index).child("el-style").set(style)
+            entry.child("elements").child(index).child("inc-class").set(div.attr("class"))
+            entry.child("elements").child(index).child("inline-style").child("top").set(div.css("top"))
+            entry.child("elements").child(index).child("inline-style").child("left").set(div.css("left"))
+          entry.child("css").set($(".css-editor").val())
+          entry.child("elidCtr").set(window.elidCtr)
+
+          $(".frames-list").val(entry_id)
+
+      # open button
+      $(".open").click () ->
+        entry_id = $(".frames-list").val()
+        entry = fb.child("userdata").child(user.id).child("frames").child(entry_id)
+        $(".workspace").empty()
+        window.styles = []
+        # window.elidCtr = 
+        entry.once "value", (data) ->
+          if data.val() != null
+            window.elidCtr = data.val().elidCtr
+            for value, index in data.val().elements
+              window.styles[index] = {}
+              for key, val of value["el-style"]
+                window.styles[index][key] = val
+
+              loadBox index
+              jsonToPanel($("#elid-#{index}"))
+              jsonToClass($("#elid-#{index}"))
+              $("#elid-#{index}").css("top", value["inline-style"].top)
+              $("#elid-#{index}").css("left", value["inline-style"].left)
+              currClass = $("#elid-#{index}").attr("class")
+              console.log currClass
+              $("#elid-#{index}").attr("class", currClass + " " + value["inc-class"])
+            $(".css-editor").val(data.val().css)
+            $(".css-editor").keyup()
+
+          $(".frames-list").val(entry_id)
+    else
+      $(".signin-section").show()
+
+  $(".login").click () ->
+    auth.login('password', {
+      email: $(".log-email").val(),
+      password: $(".log-pw").val(),
+      rememberMe: true
+    });
+
+  $(".signup").click () ->
+    auth.createUser $(".log-email").val(), $(".log-pw").val(), (error, user) ->
+      if (!error)
+        console.log ('New User, Id: ' + user.uid + ', Email: ' + user.email)
 
   # EDITOR
   editor = new Behave({
@@ -16,17 +117,13 @@ $(document).ready ->
 
   # Trigger to edit text
   $(document).on "dblclick", ".el", () ->
-  # $(".el").dblclick () ->
     $(this).find(".el-content").attr("contentEditable", true).focus()
-    # $(this).attr("contentEditable", true).focus()
-    console.log "hi"
 
   # Triggers to update style
   $(".css-includes").keyup () ->
     $(".el-active").attr("class", "el el-box el-active defaultbox").addClass($(this).val())
 
   $(".css-editor").keyup () ->
-    # $(".el-box").attr("class", "el el-box defaultbox").addClass($(this).val())
     $("#userstyle").empty()
     $("#userstyle").append($(this).val())
 
@@ -92,46 +189,29 @@ $(document).ready ->
     w = $(".pageWidth").val()
     h = $(".pageHeight").val()
     # pageDiv.css("background", "#FFFFFF").css("width", w+"px").css("height", h+"px")
-    $(".workspace").css("background", "#FFFFFF").css("width", w+"px").css("height", h+"px")
+    $(".workspace").css("background", "#FFFFFF").css("width", w)#.css("height", h+"px")
 
     # $(".workspace").append pageDiv
 
+  # Duplicate a Box
+  $(".dupBox").click () ->
+    parent_eid = $(".el-active").data("elid")
+    $(".addBox").click()
+    child_eid = $(".el-active").data("elid")
+
+    window.styles[child_eid] = {}
+    for key, value of styles[parent_eid]
+      window.styles[child_eid][key] = window.styles[parent_eid][key]
+
+    jsonToPanel($(".el-active"))
+    jsonToClass($(".el-active"))
+
+
   # Add a Box
-  elidCtr = 0;
+  window.elidCtr = 0;
   $(".addBox").click () ->
-    setDefaultStyle () ->
-      boxDiv = $ "<div class='el el-box' id='elid-" + elidCtr + "' data-elid='" + elidCtr + "'></div>"
-      boxDiv.append $ "<div class='el-content'></div>"
-      # boxDiv.css("width", "100px").css("height", "100px")
-      boxDiv.addClass("defaultbox")
-      boxDiv.draggable({
-        # snap: true,
-        grid: [5,5],
-        start: () ->
-          makeActive $(this)
-          updateClasses $(this)
-        stop: () ->
-          inlineToPanel(boxDiv)
-      })
-      boxDiv.resizable({
-        grid: [5,5],
-        stop: () ->
-          inlineToPanel boxDiv
-          panelToJSON boxDiv
-          jsonToClass boxDiv
-      })
-
-      makeActive boxDiv
-      updateClasses boxDiv
-      
-      boxDiv.click () ->
-        makeActive $(this)
-        updateClasses $(this)
-      
-      # updateStyle boxDiv
-      $(".workspace").append boxDiv
-
-      elidCtr++
+    addBox(elidCtr)
+    elidCtr++
 
   # create class from elid style
   $(".createclass").click () ->
@@ -147,6 +227,67 @@ $(document).ready ->
       # updateStyle($(".el-active"))
       panelToJSON($(".el-active"))
       jsonToClass($(".el-active"))
+
+loadBox = (elid) ->
+  boxDiv = $ "<div class='el el-box' id='elid-#{elid}' data-elid='#{elid}'></div>"
+  boxDiv.append $ "<div class='el-content'></div>"
+  boxDiv.addClass("defaultbox")
+  boxDiv.draggable({
+    # snap: true,
+    grid: [5,5],
+    start: () ->
+      makeActive $(this)
+      updateClasses $(this)
+    stop: () ->
+      inlineToPanel(boxDiv)
+  })
+  boxDiv.resizable({
+    grid: [5,5],
+    stop: () ->
+      inlineToPanel boxDiv
+      panelToJSON boxDiv
+      jsonToClass boxDiv
+  })
+  
+  boxDiv.click () ->
+    makeActive $(this)
+    updateClasses $(this)
+  
+  # updateStyle boxDiv
+  $(".workspace").append boxDiv
+
+addBox = (elid) ->
+  setDefaultStyle () ->
+    boxDiv = $ "<div class='el el-box' id='elid-" + elid + "' data-elid='" + elid + "'></div>"
+    boxDiv.append $ "<div class='el-content'></div>"
+    # boxDiv.css("width", "100px").css("height", "100px")
+    boxDiv.addClass("defaultbox")
+    boxDiv.draggable({
+      # snap: true,
+      grid: [5,5],
+      start: () ->
+        makeActive $(this)
+        updateClasses $(this)
+      stop: () ->
+        inlineToPanel(boxDiv)
+    })
+    boxDiv.resizable({
+      grid: [5,5],
+      stop: () ->
+        inlineToPanel boxDiv
+        panelToJSON boxDiv
+        jsonToClass boxDiv
+    })
+
+    makeActive boxDiv
+    updateClasses boxDiv
+    
+    boxDiv.click () ->
+      makeActive $(this)
+      updateClasses $(this)
+    
+    # updateStyle boxDiv
+    $(".workspace").append boxDiv
 
 setDefaultStyle = (callback) ->
   $(".elidstyle").val("")
@@ -168,29 +309,29 @@ setDefaultStyle = (callback) ->
 
 
 # UPDATE STYLE
-styles = []
+window.styles = []
 panelToJSON = (div) ->
   elid = div.data("elid")
-  if styles[elid] == undefined
-    styles[elid] = {}
+  if window.styles[elid] == undefined
+    window.styles[elid] = {}
 
-  styles[elid].width = $(".set-size-w").val()
-  styles[elid].height = $(".set-size-h").val()
-  styles[elid].textalign = $(".set-text-align").val()
-  styles[elid].fontfamily = $(".set-font-family").val()
-  styles[elid].fontweight = $(".set-font-weight").val()
-  styles[elid].fontsize = $(".set-font-size").val()
-  styles[elid].lineheight = $(".set-line-height").val()
-  styles[elid].color  = $(".set-color").val()
-  styles[elid].borderradius = $(".set-border-radius").val()
-  styles[elid].border  = $(".set-border").val()
-  styles[elid].bordercolor = $(".set-border-color").val()
-  styles[elid].margin = $(".set-margin").val()
-  styles[elid].padding = $(".set-padding").val()
-  styles[elid].opacity = $(".set-opacity").val()
-  styles[elid].backgroundcolor = $(".set-bk-color").val()
-  styles[elid].gradientcode = $(".set-gradient-code").val()
-  styles[elid].shadowcode = $(".set-shadow-code").val()
+  window.styles[elid].width = $(".set-size-w").val()
+  window.styles[elid].height = $(".set-size-h").val()
+  window.styles[elid].textalign = $(".set-text-align").val()
+  window.styles[elid].fontfamily = $(".set-font-family").val()
+  window.styles[elid].fontweight = $(".set-font-weight").val()
+  window.styles[elid].fontsize = $(".set-font-size").val()
+  window.styles[elid].lineheight = $(".set-line-height").val()
+  window.styles[elid].color  = $(".set-color").val()
+  window.styles[elid].borderradius = $(".set-border-radius").val()
+  window.styles[elid].border  = $(".set-border").val()
+  window.styles[elid].bordercolor = $(".set-border-color").val()
+  window.styles[elid].margin = $(".set-margin").val()
+  window.styles[elid].padding = $(".set-padding").val()
+  window.styles[elid].opacity = $(".set-opacity").val()
+  window.styles[elid].backgroundcolor = $(".set-bk-color").val()
+  window.styles[elid].gradientcode = $(".set-gradient-code").val()
+  window.styles[elid].shadowcode = $(".set-shadow-code").val()
   
 
 
@@ -203,23 +344,23 @@ displayOnlyDefined = (text) ->
 
 jsonToPanel = (div) ->
   elid = div.data("elid")
-  $(".set-size-w").val(displayOnlyDefined(styles[elid].width))
-  $(".set-size-h").val(displayOnlyDefined(styles[elid].height))
-  $(".set-text-align").val(displayOnlyDefined(styles[elid].textalign))
-  $(".set-font-family").val(displayOnlyDefined(styles[elid].fontfamily))
-  $(".set-font-weight").val(displayOnlyDefined(styles[elid].fontweight))
-  $(".set-font-size").val(displayOnlyDefined(styles[elid].fontsize))
-  $(".set-line-height").val(displayOnlyDefined(styles[elid].lineheight))
-  $(".set-color").val(displayOnlyDefined(styles[elid].color))
-  $(".set-border-radius").val(displayOnlyDefined(styles[elid].borderradius))
-  $(".set-border").val(displayOnlyDefined(styles[elid].border))
-  $(".set-border-color").val(displayOnlyDefined(styles[elid].bordercolor))
-  $(".set-margin").val(displayOnlyDefined(styles[elid].margin))
-  $(".set-padding").val(displayOnlyDefined(styles[elid].padding))
-  $(".set-opacity").val(displayOnlyDefined(styles[elid].opacity))
-  $(".set-bk-color").val(displayOnlyDefined(styles[elid].backgroundcolor))
-  $(".set-gradient-code").val(displayOnlyDefined(styles[elid].gradientcode))
-  $(".set-shadow-code").val(displayOnlyDefined(styles[elid].shadowcode))
+  $(".set-size-w").val(displayOnlyDefined(window.styles[elid].width))
+  $(".set-size-h").val(displayOnlyDefined(window.styles[elid].height))
+  $(".set-text-align").val(displayOnlyDefined(window.styles[elid].textalign))
+  $(".set-font-family").val(displayOnlyDefined(window.styles[elid].fontfamily))
+  $(".set-font-weight").val(displayOnlyDefined(window.styles[elid].fontweight))
+  $(".set-font-size").val(displayOnlyDefined(window.styles[elid].fontsize))
+  $(".set-line-height").val(displayOnlyDefined(window.styles[elid].lineheight))
+  $(".set-color").val(displayOnlyDefined(window.styles[elid].color))
+  $(".set-border-radius").val(displayOnlyDefined(window.styles[elid].borderradius))
+  $(".set-border").val(displayOnlyDefined(window.styles[elid].border))
+  $(".set-border-color").val(displayOnlyDefined(window.styles[elid].bordercolor))
+  $(".set-margin").val(displayOnlyDefined(window.styles[elid].margin))
+  $(".set-padding").val(displayOnlyDefined(window.styles[elid].padding))
+  $(".set-opacity").val(displayOnlyDefined(window.styles[elid].opacity))
+  $(".set-bk-color").val(displayOnlyDefined(window.styles[elid].backgroundcolor))
+  $(".set-gradient-code").val(displayOnlyDefined(window.styles[elid].gradientcode))
+  $(".set-shadow-code").val(displayOnlyDefined(window.styles[elid].shadowcode))
 
 
 #helper function
@@ -240,25 +381,25 @@ jsonToClass = (div) ->
     $("head").append stylewrapper
 
   code = "#elid-#{elid} {\n" +
-    displayCSSChunk("width", styles[elid].width) + 
-    displayCSSChunk("height", styles[elid].height) + 
-    displayCSSChunk("top", styles[elid].top) + 
-    displayCSSChunk("left", styles[elid].left) + 
-    displayCSSChunk("font-family", styles[elid].fontfamily) + 
-    displayCSSChunk("font-size", styles[elid].fontsize) + 
-    displayCSSChunk("line-height", styles[elid].lineheight) + 
-    displayCSSChunk("font-weight", styles[elid].fontweight) + 
-    displayCSSChunk("text-align", styles[elid].textalign) + 
-    displayCSSChunk("color", styles[elid].color) + 
-    displayCSSChunk("border-radius", styles[elid].borderradius) +
-    displayCSSChunk("border", styles[elid].border) +  
-    displayCSSChunk("border-color", styles[elid].bordercolor) + 
-    displayCSSChunk("margin", styles[elid].margin) + 
-    displayCSSChunk("padding", styles[elid].padding) + 
-    displayCSSChunk("opacity", styles[elid].opacity) + 
-    displayCSSChunk("background-color", styles[elid].backgroundcolor) + 
-    displayCSSChunk(false, styles[elid].gradientcode) + 
-    displayCSSChunk(false, styles[elid].shadowcode) +
+    displayCSSChunk("width", window.styles[elid].width) + 
+    displayCSSChunk("height", window.styles[elid].height) + 
+    displayCSSChunk("top", window.styles[elid].top) + 
+    displayCSSChunk("left", window.styles[elid].left) + 
+    displayCSSChunk("font-family", window.styles[elid].fontfamily) + 
+    displayCSSChunk("font-size", window.styles[elid].fontsize) + 
+    displayCSSChunk("line-height", window.styles[elid].lineheight) + 
+    displayCSSChunk("font-weight", window.styles[elid].fontweight) + 
+    displayCSSChunk("text-align", window.styles[elid].textalign) + 
+    displayCSSChunk("color", window.styles[elid].color) + 
+    displayCSSChunk("border-radius", window.styles[elid].borderradius) +
+    displayCSSChunk("border", window.styles[elid].border) +  
+    displayCSSChunk("border-color", window.styles[elid].bordercolor) + 
+    displayCSSChunk("margin", window.styles[elid].margin) + 
+    displayCSSChunk("padding", window.styles[elid].padding) + 
+    displayCSSChunk("opacity", window.styles[elid].opacity) + 
+    displayCSSChunk("background-color", window.styles[elid].backgroundcolor) + 
+    displayCSSChunk(false, window.styles[elid].gradientcode) + 
+    displayCSSChunk(false, window.styles[elid].shadowcode) +
   "}"
   
   $("#style-"+elid).html(code)
@@ -285,7 +426,7 @@ makeActive = (div) ->
   $(".el-active").removeClass("el-active")
   div.addClass("el-active")
 
-  if styles[div.data("elid")] != undefined
+  if window.styles[div.data("elid")] != undefined
     jsonToPanel div
     jsonToClass div
   else
