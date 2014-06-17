@@ -2,9 +2,6 @@
 $panelwidth: 300px;
 $workheight: 600px;
 
-.requirelogin {
-  display: none;
-}
 
 .nf-btn {
   border-radius: 2px;
@@ -38,6 +35,9 @@ $workheight: 600px;
   background-color: #402a2a;
 }
 
+.requirelogin {
+  display: none;
+}
 .workspace-container {
   background-color: #EEEEEE;
   min-height: 100%; 
@@ -137,6 +137,7 @@ $workheight: 600px;
   input {
     border: solid #888 1px;
     border-radius: 2px;
+    color: #555;
   }
   textarea {
     width: 100%;

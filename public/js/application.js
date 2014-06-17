@@ -28,6 +28,8 @@ $(document).ready(function() {
       });
       if ($(".frames-list").val() === 'framenew') {
         $(".frame-title-container").show();
+      } else {
+        $(".frame-title-container").hide();
       }
       $(".frames-list").change(function() {
         if ($(this).val() === 'framenew') {
@@ -68,6 +70,11 @@ $(document).ready(function() {
       });
       return $(".open").click(function() {
         var entry, entry_id;
+        if ($(".frames-list").val() === 'framenew') {
+          $(".frame-title-container").show();
+        } else {
+          $(".frame-title-container").hide();
+        }
         entry_id = $(".frames-list").val();
         entry = fb.child("userdata").child(user.id).child("frames").child(entry_id);
         $(".workspace").empty();

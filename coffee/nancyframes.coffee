@@ -25,6 +25,8 @@ $(document).ready () ->
       # show new title
       if $(".frames-list").val() == 'framenew'
         $(".frame-title-container").show()
+      else
+        $(".frame-title-container").hide()
 
       $(".frames-list").change () ->
         if $(this).val() == 'framenew'
@@ -61,6 +63,12 @@ $(document).ready () ->
 
       # open button
       $(".open").click () ->
+
+        if $(".frames-list").val() == 'framenew'
+          $(".frame-title-container").show()
+        else
+          $(".frame-title-container").hide()
+          
         entry_id = $(".frames-list").val()
         entry = fb.child("userdata").child(user.id).child("frames").child(entry_id)
         $(".workspace").empty()

@@ -1,6 +1,3 @@
-.requirelogin {
-  display: none; }
-
 .nf-btn {
   border-radius: 2px;
   background-color: #EEEEEE;
@@ -31,6 +28,9 @@
   border: 1px solid #402a2a;
   border-bottom-color: #402a2a;
   background-color: #402a2a; }
+
+.requirelogin {
+  display: none; }
 
 .workspace-container {
   background-color: #EEEEEE;
@@ -108,7 +108,8 @@
     right: 5px; }
   .workpanel input {
     border: solid #888 1px;
-    border-radius: 2px; }
+    border-radius: 2px;
+    color: #555; }
   .workpanel textarea {
     width: 100%; }
   .workpanel .input-num {
