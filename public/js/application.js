@@ -62,6 +62,7 @@ $(document).ready(function() {
             entry.child("elements").child(index).child("inc-class").set(div.attr("class"));
             entry.child("elements").child(index).child("inline-style").child("top").set(div.css("top"));
             entry.child("elements").child(index).child("inline-style").child("left").set(div.css("left"));
+            entry.child("elements").child(index).child("text").set(div.text());
           }
           entry.child("css").set($(".css-editor").val());
           entry.child("elidCtr").set(window.elidCtr);
@@ -98,8 +99,8 @@ $(document).ready(function() {
               $("#elid-" + index).css("top", value["inline-style"].top);
               $("#elid-" + index).css("left", value["inline-style"].left);
               currClass = $("#elid-" + index).attr("class");
-              console.log(currClass);
               $("#elid-" + index).attr("class", currClass + " " + value["inc-class"]);
+              $("#elid-" + index).text(value["text"]);
             }
             $(".css-editor").val(data.val().css);
             $(".css-editor").keyup();
