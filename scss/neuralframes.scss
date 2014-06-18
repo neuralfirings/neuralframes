@@ -39,6 +39,7 @@ $workheight: 600px;
 }
 .nf-btn-primary:hover {
   border: 1px solid #402a2a;
+  border-bottom: solid 3px #402a2a;
   border-bottom-color: #402a2a;
   background-color: #402a2a;
 }
@@ -101,7 +102,7 @@ $workheight: 600px;
     background-color: #999;
     padding: 5px;
     text-align: center;
-    margin-left: -10px;
+    // margin-left: -10px;
   }
   .signin-section {
     color: #EEE;
