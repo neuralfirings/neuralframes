@@ -1,5 +1,8 @@
 $(document).ready () ->
 
+  # Tool tips
+  $(".maketooltip").tooltip()
+
   #FIREBASE
   fb = new Firebase("https://neuralframes.firebaseio.com/");
 
@@ -50,13 +53,16 @@ $(document).ready () ->
           
           entry = fb.child("userdata").child(user.id).child("frames").child(entry_id)
           
-          for style, index in window.styles    
-            div = $("#elid-"+index)
-            entry.child("elements").child(index).child("el-style").set(style)
-            entry.child("elements").child(index).child("inc-class").set(div.attr("class"))
-            entry.child("elements").child(index).child("inline-style").child("top").set(div.css("top"))
-            entry.child("elements").child(index).child("inline-style").child("left").set(div.css("left"))
-            entry.child("elements").child(index).child("text").set(div.text())
+          for style, index in window.styles   # for each element
+            if style != undefined
+              div = $("#elid-"+index)
+              entry.child("elements").child(index).child("el-style").set(style)
+              entry.child("elements").child(index).child("inc-class").set(div.attr("class"))
+              entry.child("elements").child(index).child("inline-style").child("top").set(div.css("top"))
+              entry.child("elements").child(index).child("inline-style").child("left").set(div.css("left"))
+              entry.child("elements").child(index).child("text").set(div.text())
+            else 
+              entry.child("elements").child(index).remove()
 
           entry.child("css").set($(".css-editor").val())
           entry.child("elidCtr").set(window.elidCtr)
@@ -75,23 +81,24 @@ $(document).ready () ->
         entry = fb.child("userdata").child(user.id).child("frames").child(entry_id)
         $(".workspace").empty()
         window.styles = []
-        # window.elidCtr = 
         entry.once "value", (data) ->
           if data.val() != null
             window.elidCtr = data.val().elidCtr
-            for value, index in data.val().elements
-              window.styles[index] = {}
-              for key, val of value["el-style"]
-                window.styles[index][key] = val
+            for value, index in data.val().elements # each element
+              if value != undefined
+                window.styles[index] = {}
+                for key, val of value["el-style"]
+                  window.styles[index][key] = val
+                loadBox index
+                jsonToPanel($("#elid-#{index}"))
+                jsonToClass($("#elid-#{index}"))
+                $("#elid-#{index}").css("top", value["inline-style"].top)
+                $("#elid-#{index}").css("left", value["inline-style"].left)
+                currClass = $("#elid-#{index}").attr("class")
+                $("#elid-#{index}").attr("class", currClass + " " + value["inc-class"])
+                $("#elid-#{index}").text(value["text"])
 
-              loadBox index
-              jsonToPanel($("#elid-#{index}"))
-              jsonToClass($("#elid-#{index}"))
-              $("#elid-#{index}").css("top", value["inline-style"].top)
-              $("#elid-#{index}").css("left", value["inline-style"].left)
-              currClass = $("#elid-#{index}").attr("class")
-              $("#elid-#{index}").attr("class", currClass + " " + value["inc-class"])
-              $("#elid-#{index}").text(value["text"])
+            # page wide CSS editor
             $(".css-editor").val(data.val().css)
             $(".css-editor").keyup()
 
@@ -110,6 +117,30 @@ $(document).ready () ->
     auth.createUser $(".log-email").val(), $(".log-pw").val(), (error, user) ->
       if (!error)
         console.log ('New User, Id: ' + user.uid + ', Email: ' + user.email)
+
+  # Bring back and forward
+  $(".fwdBox").click () ->
+    div = $(".el-active")
+    nextdiv = $(".el-active").next()
+    if nextdiv.length != 0
+      div.insertAfter(nextdiv)
+  $(".backBox").click () ->
+    div = $(".el-active")
+    prevdiv = $(".el-active").prev()
+    if prevdiv.length != 0
+      div.insertBefore(prevdiv)
+
+  # Group
+  $(".groupBox").click () ->
+    console.log "dummy group"
+
+  # Delete
+  $(".deleteBox").click () ->
+    if $(".el-active").length != 0
+      elid = $(".el-active").data("elid")
+      styles[elid] = undefined
+      $(".el-active").remove()
+
 
   # EDITOR
   editor = new Behave({
@@ -205,17 +236,22 @@ $(document).ready () ->
 
   # Duplicate a Box
   $(".dupBox").click () ->
-    parent_eid = $(".el-active").data("elid")
-    $(".addBox").click()
-    child_eid = $(".el-active").data("elid")
+    if $(".el-active").length != 0
+      parent_eid = $(".el-active").data("elid")
+      $(".addBox").click()
+      child_eid = $(".el-active").data("elid")
 
-    window.styles[child_eid] = {}
-    for key, value of styles[parent_eid]
-      window.styles[child_eid][key] = window.styles[parent_eid][key]
+      window.styles[child_eid] = {}
+      for key, value of styles[parent_eid]
+        window.styles[child_eid][key] = window.styles[parent_eid][key]
 
-    jsonToPanel($(".el-active"))
-    jsonToClass($(".el-active"))
+      jsonToPanel($(".el-active"))
+      jsonToClass($(".el-active"))
 
+
+  $(".workspace").click (e) ->
+    if $(e.target).hasClass("workspace")
+      $(".el-active").removeClass("el-active")
 
   # Add a Box
   window.elidCtr = 0;

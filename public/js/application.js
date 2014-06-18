@@ -2,6 +2,7 @@ var addBox, displayCSSChunk, displayOnlyDefined, getColorLuminance, hex, hexDigi
 
 $(document).ready(function() {
   var auth, editor, fb;
+  $(".maketooltip").tooltip();
   fb = new Firebase("https://neuralframes.firebaseio.com/");
   auth = new FirebaseSimpleLogin(fb, function(error, user) {
     var titlelist;
@@ -57,12 +58,16 @@ $(document).ready(function() {
           _ref = window.styles;
           for (index = _i = 0, _len = _ref.length; _i < _len; index = ++_i) {
             style = _ref[index];
-            div = $("#elid-" + index);
-            entry.child("elements").child(index).child("el-style").set(style);
-            entry.child("elements").child(index).child("inc-class").set(div.attr("class"));
-            entry.child("elements").child(index).child("inline-style").child("top").set(div.css("top"));
-            entry.child("elements").child(index).child("inline-style").child("left").set(div.css("left"));
-            entry.child("elements").child(index).child("text").set(div.text());
+            if (style !== void 0) {
+              div = $("#elid-" + index);
+              entry.child("elements").child(index).child("el-style").set(style);
+              entry.child("elements").child(index).child("inc-class").set(div.attr("class"));
+              entry.child("elements").child(index).child("inline-style").child("top").set(div.css("top"));
+              entry.child("elements").child(index).child("inline-style").child("left").set(div.css("left"));
+              entry.child("elements").child(index).child("text").set(div.text());
+            } else {
+              entry.child("elements").child(index).remove();
+            }
           }
           entry.child("css").set($(".css-editor").val());
           entry.child("elidCtr").set(window.elidCtr);
@@ -87,20 +92,22 @@ $(document).ready(function() {
             _ref = data.val().elements;
             for (index = _i = 0, _len = _ref.length; _i < _len; index = ++_i) {
               value = _ref[index];
-              window.styles[index] = {};
-              _ref1 = value["el-style"];
-              for (key in _ref1) {
-                val = _ref1[key];
-                window.styles[index][key] = val;
+              if (value !== void 0) {
+                window.styles[index] = {};
+                _ref1 = value["el-style"];
+                for (key in _ref1) {
+                  val = _ref1[key];
+                  window.styles[index][key] = val;
+                }
+                loadBox(index);
+                jsonToPanel($("#elid-" + index));
+                jsonToClass($("#elid-" + index));
+                $("#elid-" + index).css("top", value["inline-style"].top);
+                $("#elid-" + index).css("left", value["inline-style"].left);
+                currClass = $("#elid-" + index).attr("class");
+                $("#elid-" + index).attr("class", currClass + " " + value["inc-class"]);
+                $("#elid-" + index).text(value["text"]);
               }
-              loadBox(index);
-              jsonToPanel($("#elid-" + index));
-              jsonToClass($("#elid-" + index));
-              $("#elid-" + index).css("top", value["inline-style"].top);
-              $("#elid-" + index).css("left", value["inline-style"].left);
-              currClass = $("#elid-" + index).attr("class");
-              $("#elid-" + index).attr("class", currClass + " " + value["inc-class"]);
-              $("#elid-" + index).text(value["text"]);
             }
             $(".css-editor").val(data.val().css);
             $(".css-editor").keyup();
@@ -125,6 +132,33 @@ $(document).ready(function() {
         return console.log('New User, Id: ' + user.uid + ', Email: ' + user.email);
       }
     });
+  });
+  $(".fwdBox").click(function() {
+    var div, nextdiv;
+    div = $(".el-active");
+    nextdiv = $(".el-active").next();
+    if (nextdiv.length !== 0) {
+      return div.insertAfter(nextdiv);
+    }
+  });
+  $(".backBox").click(function() {
+    var div, prevdiv;
+    div = $(".el-active");
+    prevdiv = $(".el-active").prev();
+    if (prevdiv.length !== 0) {
+      return div.insertBefore(prevdiv);
+    }
+  });
+  $(".groupBox").click(function() {
+    return console.log("dummy group");
+  });
+  $(".deleteBox").click(function() {
+    var elid;
+    if ($(".el-active").length !== 0) {
+      elid = $(".el-active").data("elid");
+      styles[elid] = void 0;
+      return $(".el-active").remove();
+    }
   });
   editor = new Behave({
     textarea: document.getElementById('css-editor'),
@@ -208,17 +242,24 @@ $(document).ready(function() {
   });
   $(".dupBox").click(function() {
     var child_eid, key, parent_eid, value, _ref;
-    parent_eid = $(".el-active").data("elid");
-    $(".addBox").click();
-    child_eid = $(".el-active").data("elid");
-    window.styles[child_eid] = {};
-    _ref = styles[parent_eid];
-    for (key in _ref) {
-      value = _ref[key];
-      window.styles[child_eid][key] = window.styles[parent_eid][key];
+    if ($(".el-active").length !== 0) {
+      parent_eid = $(".el-active").data("elid");
+      $(".addBox").click();
+      child_eid = $(".el-active").data("elid");
+      window.styles[child_eid] = {};
+      _ref = styles[parent_eid];
+      for (key in _ref) {
+        value = _ref[key];
+        window.styles[child_eid][key] = window.styles[parent_eid][key];
+      }
+      jsonToPanel($(".el-active"));
+      return jsonToClass($(".el-active"));
     }
-    jsonToPanel($(".el-active"));
-    return jsonToClass($(".el-active"));
+  });
+  $(".workspace").click(function(e) {
+    if ($(e.target).hasClass("workspace")) {
+      return $(".el-active").removeClass("el-active");
+    }
   });
   window.elidCtr = 0;
   $(".addBox").click(function() {

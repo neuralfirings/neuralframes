@@ -43,27 +43,27 @@
       <select class="frames-list requirelogin">
         <option value="framenew">New Entry</option>
       </select>
+      <button class="nf-btn nf-btn-primary open requirelogin" style="display:none">Open</button> 
       <div class="frame-title-container" style="display:none">
         <label>title</label>
         <input type="text" class="frame-title" />
       </div>
       <label></label>
 
-      <button class="nf-btn nf-btn-primary open requirelogin" style="display:none">Open</button> <button class="nf-btn nf-btn-primary save">Save</button>
+      <button class="nf-btn nf-btn-primary save">Save</button>
 
       <hr />
+
+      <center>
+        <div class="nf-btn nf-btn-icon addBox maketooltip" data-toggle="tooltip" data-placement="bottom" title="add a box"><i class="fa fa-plus-square"></i></div><div class="nf-btn nf-btn-icon deleteBox maketooltip" data-toggle="tooltip" data-placement="bottom" title="delete a box"><i class="fa fa-times-circle"></i></div><div class="nf-btn nf-btn-icon dupBox maketooltip" data-toggle="tooltip" data-placement="bottom" title="duplicate box"><i class="fa fa-copy"></i></div><div class="nf-btn nf-btn-icon groupBox maketooltip" style="display:none"><i class="fa fa-group"></i></div><div class="nf-btn nf-btn-icon fwdBox maketooltip" data-toggle="tooltip" data-placement="bottom" title="bring forward"><i class="fa fa-arrow-up"></i></div><div class="nf-btn nf-btn-icon backBox maketooltip" data-toggle="tooltip" data-placement="bottom" title="bring back"><i class="fa fa-arrow-down"></i></div>
+      </center>
+      
+      <div style="height: 10px"></div>
 
       <label>Page (x, y)</label>
       <input type="text" class="pageWidth input-num" placeholder="1080px">
       <!--<input type="text" class="pageHeight input-num" placeholder="100%">-->
       <div class="nf-btn updatePageDim">Update</div>
-
-      <div style="height: 10px"></div>
-
-      <label>Actions</label>
-      <div class="nf-btn nf-btn-primary addBox">Add Box</div>
-      <div class="nf-btn nf-btn-primary dupBox">Duplicate</div>
-
       
       <h1>Element Specific CSS</h1>
       <div class="css-block">

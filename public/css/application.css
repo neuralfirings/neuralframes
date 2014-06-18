@@ -10,6 +10,12 @@
   min-width: 50px;
   display: inline-block;
   padding: 0px 5px; }
+  .nf-btn.nf-btn-icon {
+    width: 24px;
+    min-width: inherit;
+    padding: 5px;
+    margin: 0px;
+    border-radius: 0px; }
 
 .nf-btn:hover {
   background-color: #DDDDDD;
@@ -39,6 +45,9 @@
   overflow: auto;
   position: relative;
   float: left; }
+  .workspace-container .el-active {
+    -moz-box-shadow: 0px 0px 3px 1px #4d84d6;
+    box-shadow: 0px 0px 3px 1px #4d84d6; }
   .workspace-container .workspace {
     overflow: auto;
     position: relative;
