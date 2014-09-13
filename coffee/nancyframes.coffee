@@ -75,6 +75,11 @@ $(document).ready () ->
   # Tool tips
   $(".maketooltip").tooltip()
 
+  # Show toggle
+  $(".showclass").click () ->
+    element = $(this).data("element")
+    $(element).toggle()
+
   #FIREBASE
   fb = new Firebase("https://neuralframes.firebaseio.com/");
 
@@ -278,7 +283,12 @@ $(document).ready () ->
     autoIndent:   true
   });
 
-  $(".input-color").minicolors({position: 'top right'})
+  $(".set-color").minicolors({position: 'bottom right'})
+  $(".set-bk-color").minicolors({position: 'bottom right'})
+  $(".set-border-color").minicolors({position: 'bottom right'})
+  $(".set-outershadow-c").minicolors({position: 'bottom right'})
+  $(".set-innershadow-c").minicolors({position: 'bottom right'})
+  $(".dummy-color").minicolors({position: 'top right'})
 
   # Trigger to edit text
   $(document).on "dblclick", ".el", () ->
@@ -393,6 +403,7 @@ $(document).ready () ->
     css = css.replace("#elid-" + elid, ".newstyle")
     currcss = $(".css-editor").val()
     $(".css-editor").val(css + "\n" + currcss)
+    $("#csseditorlink").click()
 
   # reset to default, keep classes
   $(".resetcss").click () ->

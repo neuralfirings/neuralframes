@@ -72,6 +72,11 @@ $.ui.plugin.add("draggable", "alsoDrag", {
 $(document).ready(function() {
   var auth, editor, fb, groupctr;
   $(".maketooltip").tooltip();
+  $(".showclass").click(function() {
+    var element;
+    element = $(this).data("element");
+    return $(element).toggle();
+  });
   fb = new Firebase("https://neuralframes.firebaseio.com/");
   auth = new FirebaseSimpleLogin(fb, function(error, user) {
     var titlelist;
@@ -302,7 +307,22 @@ $(document).ready(function() {
     autoStrip: true,
     autoIndent: true
   });
-  $(".input-color").minicolors({
+  $(".set-color").minicolors({
+    position: 'bottom right'
+  });
+  $(".set-bk-color").minicolors({
+    position: 'bottom right'
+  });
+  $(".set-border-color").minicolors({
+    position: 'bottom right'
+  });
+  $(".set-outershadow-c").minicolors({
+    position: 'bottom right'
+  });
+  $(".set-innershadow-c").minicolors({
+    position: 'bottom right'
+  });
+  $(".dummy-color").minicolors({
     position: 'top right'
   });
   $(document).on("dblclick", ".el", function() {
@@ -407,7 +427,8 @@ $(document).ready(function() {
     css = $("#style-" + elid).html();
     css = css.replace("#elid-" + elid, ".newstyle");
     currcss = $(".css-editor").val();
-    return $(".css-editor").val(css + "\n" + currcss);
+    $(".css-editor").val(css + "\n" + currcss);
+    return $("#csseditorlink").click();
   });
   return $(".resetcss").click(function() {
     return setDefaultStyle(function() {

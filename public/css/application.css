@@ -85,6 +85,14 @@
     background-color: #999;
     padding: 5px;
     text-align: center; }
+  .workpanel .panel-title {
+    font-size: 12px; }
+  .workpanel .panel-heading {
+    padding: 5px; }
+  .workpanel .panel-body {
+    padding: 5px; }
+  .workpanel .btn-link {
+    color: #93B4DF; }
   .workpanel .signin-section {
     color: #EEE;
     display: none; }
@@ -135,4 +143,5 @@
     width: 104px; }
   .workpanel .css-editor {
     font-family: "consolas";
-    min-height: 300px; }
+    min-height: 300px;
+    height: 460px; }

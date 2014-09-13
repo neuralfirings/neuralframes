@@ -124,10 +124,11 @@
                 <br />
 
                 <label>gradient</label>
-                <input type="text" class="input-num elidstyle set-gradient" placeholder="0-1">
-                <br />
-                <textarea class="elidstyle set-gradient-code" style="width: 100%"></textarea>
-                <br />
+                <input type="text" class="input-num elidstyle set-gradient" placeholder="0-1"> 
+                <span class="btn btn-link btn-xs showclass" data-element=".code-gradient-container">code</span>
+                <div class="code-gradient-container" style="display:none">
+                  <textarea class="elidstyle set-gradient-code" style="width: 100%; margin-bottom: 3px;"></textarea>
+                </div>
 
                 <label>opacity</label>
                 <input type="text" class="input-num elidstyle set-opacity" placeholder="0-1">
@@ -148,7 +149,7 @@
 
 
               <div class="css-block">
-                <h2>shadows</h2>
+                <h2>shadows </h2>
                 <label>shadow</label>
                 <input type="text" class="input-color elidstyle set-shadow set-outershadow-c" placeholder="">
                 <br />
@@ -166,15 +167,18 @@
                 <input type="text" class="input-num-small elidstyle set-shadow set-innershadow-y" placeholder="y" value="0">
                 <input type="text" class="input-num-small elidstyle set-shadow set-innershadow-b" placeholder="blur" value="3">
                 <input type="text" class="input-num-small elidstyle set-shadow set-innershadow-s" placeholder="spread" value="0">
+                <span class="btn btn-link btn-xs showclass" data-element=".code-shadow-container">code</span>
                 <br />
-                <textarea class="elidstyle set-shadow-code" style="width: 100%"></textarea>
+
+                
+                <textarea class="elidstyle set-shadow-code code-shadow-container" style="display:none;width: 100%"></textarea>
               </div>
 
               <div class="css-block">
-                <h2>spacing</h2>
+                <h2>spacing</h2><!-- 
                 <label>margin</label>
                 <input type="text" class="input-num4 elidstyle set-margin" placeholder="20px 0px">
-                <br />
+                <br /> -->
 
                 <label>padding</label>
                 <input type="text" class="input-num4 elidstyle set-padding" placeholder="10px">
@@ -191,7 +195,7 @@
         <div class="panel panel-default">
           <div class="panel-heading">
             <h4 class="panel-title">
-              <a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo">
+              <a id="csseditorlink" data-toggle="collapse" data-parent="#accordion" href="#collapseTwo">
                 CSS Editor
               </a>
             </h4>
@@ -208,7 +212,7 @@
               <label>Code</label><br />
               <textarea class="css-editor" id="css-editor"></textarea>
               <div style="height: 10px"></div>
-              <label>dummy color tool</label><input type="text" class="input-color" />
+              <label>dummy color tool</label><input type="text" class="input-color dummy-color" />
             </div>
           </div>
         </div>
