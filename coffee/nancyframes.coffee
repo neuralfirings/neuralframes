@@ -126,6 +126,9 @@ $(document).ready () ->
           
           entry = fb.child("userdata").child(user.id).child("frames").child(entry_id)
           
+          order = []
+          $(".workspace").find(".el").each () ->
+            order.push $(this).data("elid")
           for style, index in window.styles   # for each element
             if style != undefined
               div = $("#elid-"+index)
@@ -139,6 +142,7 @@ $(document).ready () ->
 
           entry.child("css").set($(".css-editor").val())
           entry.child("elidCtr").set(window.elidCtr)
+          entry.child("order").set(order)
 
           $(".frames-list").val(entry_id)
 
@@ -160,8 +164,12 @@ $(document).ready () ->
         entry.once "value", (data) ->
           if data.val() != null
             window.elidCtr = data.val().elidCtr
-            for value, index in data.val().elements # each element
-              if value != undefined
+
+            if data.val().order
+              for index in data.val().order 
+                value = data.val().elements[index]
+                # index = elid
+                # console.log data.val().elements[elid], elid
                 window.styles[index] = {}
                 for key, val of value["el-style"]
                   window.styles[index][key] = val
@@ -173,6 +181,21 @@ $(document).ready () ->
                 currClass = $("#elid-#{index}").attr("class")
                 $("#elid-#{index}").attr("class", value["inc-class"])
                 $("#elid-#{index}").find(".el-content").text(value["text"])
+            else
+              for value, index in data.val().elements # each element
+                console.log value, index
+                if value != undefined
+                  window.styles[index] = {}
+                  for key, val of value["el-style"]
+                    window.styles[index][key] = val
+                  loadBox index
+                  jsonToPanel($("#elid-#{index}"))
+                  jsonToClass($("#elid-#{index}"))
+                  $("#elid-#{index}").css("top", value["inline-style"].top)
+                  $("#elid-#{index}").css("left", value["inline-style"].left)
+                  currClass = $("#elid-#{index}").attr("class")
+                  $("#elid-#{index}").attr("class", value["inc-class"])
+                  $("#elid-#{index}").find(".el-content").text(value["text"])
 
             # page wide CSS editor
             $(".css-editor").val(data.val().css)
@@ -195,6 +218,10 @@ $(document).ready () ->
         console.log ('New User, Id: ' + user.uid + ', Email: ' + user.email)
 
   # Bring back and forward
+  $(".fwdallBox").click () ->
+    div = $(".el-active")
+    lastel = $(".workspace").find(".el").last()
+    div.insertAfter(lastel)
   $(".fwdBox").click () ->
     div = $(".el-active")
     nextdiv = $(".el-active").next()
@@ -205,6 +232,10 @@ $(document).ready () ->
     prevdiv = $(".el-active").prev()
     if prevdiv.length != 0
       div.insertBefore(prevdiv)
+  $(".backallBox").click () ->
+    div = $(".el-active")
+    firstel = $(".workspace").find(".el").first()
+    div.insertBefore(firstel)
 
   # Group
   groupctr = 0

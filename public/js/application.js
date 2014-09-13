@@ -111,7 +111,7 @@ $(document).ready(function() {
       });
       $(".save").show();
       $(".save").click(function() {
-        var div, entry, entry_id, entry_key, index, style, title, _i, _len, _ref;
+        var div, entry, entry_id, entry_key, index, order, style, title, _i, _len, _ref;
         title = $(".frame-title").val();
         if ($(".frames-list").val() === "framenew" && (title === "" || title === void 0)) {
           return alert("no title");
@@ -125,6 +125,10 @@ $(document).ready(function() {
             entry_id = $(".frames-list").val();
           }
           entry = fb.child("userdata").child(user.id).child("frames").child(entry_id);
+          order = [];
+          $(".workspace").find(".el").each(function() {
+            return order.push($(this).data("elid"));
+          });
           _ref = window.styles;
           for (index = _i = 0, _len = _ref.length; _i < _len; index = ++_i) {
             style = _ref[index];
@@ -141,6 +145,7 @@ $(document).ready(function() {
           }
           entry.child("css").set($(".css-editor").val());
           entry.child("elidCtr").set(window.elidCtr);
+          entry.child("order").set(order);
           return $(".frames-list").val(entry_id);
         }
       });
@@ -160,13 +165,14 @@ $(document).ready(function() {
         $(".workspace").empty();
         window.styles = [];
         return entry.once("value", function(data) {
-          var currClass, index, key, val, value, _i, _len, _ref, _ref1;
+          var currClass, index, key, val, value, _i, _j, _len, _len1, _ref, _ref1, _ref2, _ref3;
           if (data.val() !== null) {
             window.elidCtr = data.val().elidCtr;
-            _ref = data.val().elements;
-            for (index = _i = 0, _len = _ref.length; _i < _len; index = ++_i) {
-              value = _ref[index];
-              if (value !== void 0) {
+            if (data.val().order) {
+              _ref = data.val().order;
+              for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+                index = _ref[_i];
+                value = data.val().elements[index];
                 window.styles[index] = {};
                 _ref1 = value["el-style"];
                 for (key in _ref1) {
@@ -181,6 +187,28 @@ $(document).ready(function() {
                 currClass = $("#elid-" + index).attr("class");
                 $("#elid-" + index).attr("class", value["inc-class"]);
                 $("#elid-" + index).find(".el-content").text(value["text"]);
+              }
+            } else {
+              _ref2 = data.val().elements;
+              for (index = _j = 0, _len1 = _ref2.length; _j < _len1; index = ++_j) {
+                value = _ref2[index];
+                console.log(value, index);
+                if (value !== void 0) {
+                  window.styles[index] = {};
+                  _ref3 = value["el-style"];
+                  for (key in _ref3) {
+                    val = _ref3[key];
+                    window.styles[index][key] = val;
+                  }
+                  loadBox(index);
+                  jsonToPanel($("#elid-" + index));
+                  jsonToClass($("#elid-" + index));
+                  $("#elid-" + index).css("top", value["inline-style"].top);
+                  $("#elid-" + index).css("left", value["inline-style"].left);
+                  currClass = $("#elid-" + index).attr("class");
+                  $("#elid-" + index).attr("class", value["inc-class"]);
+                  $("#elid-" + index).find(".el-content").text(value["text"]);
+                }
               }
             }
             $(".css-editor").val(data.val().css);
@@ -207,6 +235,12 @@ $(document).ready(function() {
       }
     });
   });
+  $(".fwdallBox").click(function() {
+    var div, lastel;
+    div = $(".el-active");
+    lastel = $(".workspace").find(".el").last();
+    return div.insertAfter(lastel);
+  });
   $(".fwdBox").click(function() {
     var div, nextdiv;
     div = $(".el-active");
@@ -222,6 +256,12 @@ $(document).ready(function() {
     if (prevdiv.length !== 0) {
       return div.insertBefore(prevdiv);
     }
+  });
+  $(".backallBox").click(function() {
+    var div, firstel;
+    div = $(".el-active");
+    firstel = $(".workspace").find(".el").first();
+    return div.insertBefore(firstel);
   });
   groupctr = 0;
   $(".groupBox").click(function() {
