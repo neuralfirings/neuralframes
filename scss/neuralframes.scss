@@ -95,6 +95,10 @@ $workheight: 600px;
     min-width: 100px;
   }
 
+  .panel-body, .panel {
+    background-color: transparent;
+  }
+
   h1 {
     font-size: 12px;
     width: 100%;

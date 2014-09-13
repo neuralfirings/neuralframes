@@ -1,13 +1,82 @@
-var addBox, displayCSSChunk, displayOnlyDefined, getColorLuminance, hex, hexDigits, inlineToPanel, jsonToClass, jsonToPanel, loadBox, makeActive, panelToJSON, rgb2hex, setDefaultStyle, updateClasses;
+var addBox, addGroupBox, displayCSSChunk, displayOnlyDefined, getColorLuminance, hex, hexDigits, inlineToPanel, jsonToClass, jsonToPanel, loadBox, makeActive, panelToJSON, rgb2hex, setDefaultStyle, updateClasses;
+
+$.ui.plugin.add("draggable", "alsoDrag", {
+  start: function() {
+    var o, that, _store;
+    console.log("alsoDrag");
+    that = $(this).data("ui-draggable");
+    o = that.options;
+    _store = function(exp) {
+      console.log(exp);
+      $(exp).each(function() {
+        var el;
+        el = $(this);
+        el.data("ui-draggable-alsoDrag", {
+          top: parseInt(el.css("top"), 10),
+          left: parseInt(el.css("left"), 10)
+        });
+      });
+    };
+    if (typeof o.alsoDrag === "object" && !o.alsoDrag.parentNode) {
+      if (o.alsoDrag.length) {
+        o.alsoDrag = o.alsoDrag[0];
+        _store(o.alsoDrag);
+      } else {
+        $.each(o.alsoDrag, function(exp) {
+          _store(exp);
+        });
+      }
+    } else {
+      _store(o.alsoDrag);
+    }
+  },
+  drag: function() {
+    var delta, o, op, os, that, _alsoDrag;
+    that = $(this).data("ui-draggable");
+    o = that.options;
+    os = that.originalSize;
+    op = that.originalPosition;
+    delta = {
+      top: (that.position.top - op.top) || 0,
+      left: (that.position.left - op.left) || 0
+    };
+    _alsoDrag = function(exp, c) {
+      console.log('alsoDragging');
+      $(exp).each(function() {
+        var css, el, start, style;
+        el = $(this);
+        start = $(this).data("ui-draggable-alsoDrag");
+        style = {};
+        css = ["top", "left"];
+        $.each(css, function(i, prop) {
+          var sum;
+          sum = (start[prop] || 0) + (delta[prop] || 0);
+          style[prop] = sum || null;
+        });
+        el.css(style);
+      });
+    };
+    if (typeof o.alsoDrag === "object" && !o.alsoDrag.nodeType) {
+      $.each(o.alsoDrag, function(exp, c) {
+        _alsoDrag(exp, c);
+      });
+    } else {
+      _alsoDrag(o.alsoDrag);
+    }
+  },
+  stop: function() {
+    $(this).removeData("ui-draggable-alsoDrag");
+  }
+});
 
 $(document).ready(function() {
-  var auth, editor, fb;
+  var auth, editor, fb, groupctr;
   $(".maketooltip").tooltip();
   fb = new Firebase("https://neuralframes.firebaseio.com/");
   auth = new FirebaseSimpleLogin(fb, function(error, user) {
     var titlelist;
     if (!error && user) {
-      console.log("Welcome back, " + user + " (" + user.id + ")");
+      console.log("Welcome back, " + user.email + " (" + user.id + ")");
       $(".requirelogin").show();
       $(".signin-section").hide();
       $(".signedin-section").show();
@@ -23,6 +92,7 @@ $(document).ready(function() {
           for (key in _ref) {
             value = _ref[key];
             $(".frames-list").append("<option value='" + key + "' data-key='" + key + "'>" + value.title + "</option>");
+            $(".frame-title-container").hide();
           }
           return $(".frames-list").append("<option value='framenew'>New Entry</option>");
         }
@@ -74,6 +144,10 @@ $(document).ready(function() {
           return $(".frames-list").val(entry_id);
         }
       });
+      $(".delete").click(function() {
+        var title;
+        return title = $(".frame-title").val();
+      });
       return $(".open").click(function() {
         var entry, entry_id;
         if ($(".frames-list").val() === 'framenew') {
@@ -105,8 +179,8 @@ $(document).ready(function() {
                 $("#elid-" + index).css("top", value["inline-style"].top);
                 $("#elid-" + index).css("left", value["inline-style"].left);
                 currClass = $("#elid-" + index).attr("class");
-                $("#elid-" + index).attr("class", currClass + " " + value["inc-class"]);
-                $("#elid-" + index).text(value["text"]);
+                $("#elid-" + index).attr("class", value["inc-class"]);
+                $("#elid-" + index).find(".el-content").text(value["text"]);
               }
             }
             $(".css-editor").val(data.val().css);
@@ -149,8 +223,26 @@ $(document).ready(function() {
       return div.insertBefore(prevdiv);
     }
   });
+  groupctr = 0;
   $(".groupBox").click(function() {
-    return console.log("dummy group");
+    console.log("dummy group");
+    $(".el-active").each(function() {
+      if ($(this).data("ingroup")) {
+        return $(this).removeClass($(this).data("ingroup"));
+      }
+    });
+    $(".el-active").attr("data-ingroup", "group-" + groupctr);
+    $(".el-active").addClass("group-" + groupctr);
+    $(".el-active").draggable("option", "alsoDrag", ".group-" + groupctr);
+    $(".el-active").draggable("option", "alsoResize", ".group-" + groupctr);
+    return groupctr++;
+  });
+  $(".ungroupBox").click(function() {
+    return $(".el-active").each(function() {
+      $(this).removeClass($(this).data("ingroup"));
+      $(this).removeAttr("data-ingroup");
+      return $(this).removeClass("el-active");
+    });
   });
   $(".deleteBox").click(function() {
     var elid;
@@ -171,13 +263,14 @@ $(document).ready(function() {
     autoIndent: true
   });
   $(".input-color").minicolors({
-    position: 'bottom right'
+    position: 'top right'
   });
   $(document).on("dblclick", ".el", function() {
+    console.log("doubleclick");
     return $(this).find(".el-content").attr("contentEditable", true).focus();
   });
   $(".css-includes").keyup(function() {
-    return $(".el-active").attr("class", "el el-box el-active defaultbox").addClass($(this).val());
+    return $(".el-active").attr("class", "el el-box el-active").addClass($(this).val());
   });
   $(".css-editor").keyup(function() {
     $("#userstyle").empty();
@@ -241,11 +334,13 @@ $(document).ready(function() {
     return $(".workspace").css("background", "#FFFFFF").css("width", w);
   });
   $(".dupBox").click(function() {
-    var child_eid, key, parent_eid, value, _ref;
+    var child_eid, key, parent_classes, parent_eid, value, _ref;
     if ($(".el-active").length !== 0) {
       parent_eid = $(".el-active").data("elid");
+      parent_classes = $(".el-active").attr("class");
       $(".addBox").click();
       child_eid = $(".el-active").data("elid");
+      $(".el-active").attr("class", parent_classes);
       window.styles[child_eid] = {};
       _ref = styles[parent_eid];
       for (key in _ref) {
@@ -284,9 +379,53 @@ $(document).ready(function() {
 
 loadBox = function(elid) {
   var boxDiv;
+  console.log("loadBox");
   boxDiv = $("<div class='el el-box' id='elid-" + elid + "' data-elid='" + elid + "'></div>");
   boxDiv.append($("<div class='el-content'></div>"));
-  boxDiv.addClass("defaultbox");
+  boxDiv.draggable({
+    grid: [5, 5],
+    alsoDrag: ".el-active",
+    start: function() {
+      return updateClasses($(this));
+    },
+    stop: function() {
+      return inlineToPanel(boxDiv);
+    }
+  });
+  boxDiv.resizable({
+    grid: [5, 5],
+    alsoResize: ".el-active",
+    stop: function() {
+      if (boxDiv.attr("ingroup")) {
+        $("." + boxDiv.attr("ingroup")).each(function() {
+          inlineToPanel($(this));
+          panelToJSON($(this));
+          return jsonToClass($(this));
+        });
+      }
+      return $(".el-active").each(function() {
+        inlineToPanel($(this));
+        panelToJSON($(this));
+        return jsonToClass($(this));
+      });
+    }
+  });
+  boxDiv.click(function(e) {
+    if (e.shiftKey) {
+      makeActive($(this), false);
+    } else {
+      makeActive($(this), true);
+    }
+    updateClasses($(this));
+    return inlineToPanel($(this));
+  });
+  return $(".workspace").append(boxDiv);
+};
+
+addGroupBox = function(elid) {
+  var boxDiv;
+  boxDiv = $("<div class='el el-group' id='elid-" + elid + "' data-elid='" + elid + "'></div>");
+  boxDiv.append($("<div class='el-content'></div>"));
   boxDiv.draggable({
     grid: [5, 5],
     start: function() {
@@ -305,9 +444,14 @@ loadBox = function(elid) {
       return jsonToClass(boxDiv);
     }
   });
-  boxDiv.click(function() {
-    makeActive($(this));
-    return updateClasses($(this));
+  boxDiv.click(function(e) {
+    if (e.shiftKey) {
+      makeActive($(this), false);
+    } else {
+      makeActive($(this), true);
+    }
+    updateClasses($(this));
+    return inlineToPanel($(this));
   });
   return $(".workspace").append(boxDiv);
 };
@@ -320,8 +464,8 @@ addBox = function(elid) {
     boxDiv.addClass("defaultbox");
     boxDiv.draggable({
       grid: [5, 5],
+      alsoDrag: ".el-active",
       start: function() {
-        makeActive($(this));
         return updateClasses($(this));
       },
       stop: function() {
@@ -330,19 +474,38 @@ addBox = function(elid) {
     });
     boxDiv.resizable({
       grid: [5, 5],
+      alsoResize: ".el-active",
       stop: function() {
-        inlineToPanel(boxDiv);
-        panelToJSON(boxDiv);
-        return jsonToClass(boxDiv);
+        if (boxDiv.attr("ingroup")) {
+          $("." + boxDiv.attr("ingroup")).each(function() {
+            inlineToPanel($(this));
+            panelToJSON($(this));
+            return jsonToClass($(this));
+          });
+        }
+        return $(".el-active").each(function() {
+          inlineToPanel($(this));
+          panelToJSON($(this));
+          return jsonToClass($(this));
+        });
       }
     });
     makeActive(boxDiv);
     updateClasses(boxDiv);
-    boxDiv.click(function() {
-      makeActive($(this));
-      return updateClasses($(this));
+    boxDiv.click(function(e) {
+      if (e.shiftKey) {
+        makeActive($(this), false);
+      } else {
+        makeActive($(this), true);
+      }
+      updateClasses($(this));
+      return inlineToPanel($(this));
     });
-    return $(".workspace").append(boxDiv);
+    $(".workspace").append(boxDiv);
+    $(".set-size-w").val("200px");
+    $(".set-size-h").val("50px");
+    panelToJSON(boxDiv);
+    return jsonToClass(boxDiv);
   });
 };
 
@@ -365,6 +528,7 @@ window.styles = [];
 
 panelToJSON = function(div) {
   var elid;
+  console.log("panelToJSON");
   elid = div.data("elid");
   if (window.styles[elid] === void 0) {
     window.styles[elid] = {};
@@ -454,9 +618,14 @@ inlineToPanel = function(div) {
   return div.attr("style", "top: " + t + "; left: " + l);
 };
 
-makeActive = function(div) {
-  $(".el-active").removeClass("el-active");
+makeActive = function(div, exclusive) {
+  if (exclusive === void 0 || exclusive === true) {
+    $(".el-active").removeClass("el-active");
+  }
   div.addClass("el-active");
+  if (div.data("ingroup")) {
+    $("." + div.data("ingroup")).addClass("el-active");
+  }
   if (window.styles[div.data("elid")] !== void 0) {
     jsonToPanel(div);
     return jsonToClass(div);
@@ -470,11 +639,11 @@ updateClasses = function(div) {
   var c, classes, classesString, ignoreClass, _i, _len;
   classes = div.attr("class").split(" ");
   classesString = "";
-  ignoreClass = ["el", "el-box", "el-active", "defaultbox", "ui-draggable", "ui-draggable-dragging", "ui-resizable"];
+  ignoreClass = ["el", "el-box", "el-active", "ui-draggable", "ui-draggable-dragging", "ui-resizable"];
   for (_i = 0, _len = classes.length; _i < _len; _i++) {
     c = classes[_i];
     if (ignoreClass.indexOf(c) <= -1) {
-      classesString = c + " ";
+      classesString += c + " ";
     }
   }
   return $(".css-includes").val(classesString);

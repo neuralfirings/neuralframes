@@ -1,3 +1,75 @@
+$.ui.plugin.add "draggable", "alsoDrag",
+  start: ->
+    console.log "alsoDrag"
+    that = $(this).data("ui-draggable")
+    o = that.options
+    _store = (exp) ->
+      console.log exp
+      $(exp).each () ->
+        el = $(this)
+        el.data "ui-draggable-alsoDrag",
+          top: parseInt(el.css("top"), 10)
+          left: parseInt(el.css("left"), 10)
+        return
+      return
+
+    if typeof (o.alsoDrag) is "object" and not o.alsoDrag.parentNode
+      if o.alsoDrag.length
+        o.alsoDrag = o.alsoDrag[0]
+        _store o.alsoDrag
+      else
+        $.each o.alsoDrag, (exp) ->
+          _store exp
+          return
+
+    else
+      _store o.alsoDrag
+    return
+
+  drag: ->
+    that = $(this).data("ui-draggable")
+    o = that.options
+    os = that.originalSize
+    op = that.originalPosition
+    delta =
+      top: (that.position.top - op.top) or 0
+      left: (that.position.left - op.left) or 0
+
+    _alsoDrag = (exp, c) ->
+      console.log 'alsoDragging'
+      $(exp).each ->
+        el = $(this)
+        start = $(this).data("ui-draggable-alsoDrag")
+        style = {}
+        css = [
+          "top"
+          "left"
+        ]
+        $.each css, (i, prop) ->
+          sum = (start[prop] or 0) + (delta[prop] or 0)
+          style[prop] = sum or null
+          return
+
+        el.css style
+        return
+
+      return
+
+    if typeof (o.alsoDrag) is "object" and not o.alsoDrag.nodeType
+      $.each o.alsoDrag, (exp, c) ->
+        _alsoDrag exp, c
+        return
+
+    else
+      _alsoDrag o.alsoDrag
+    return
+
+  stop: ->
+    $(this).removeData "ui-draggable-alsoDrag"
+    return
+
+
+
 $(document).ready () ->
 
   # Tool tips
@@ -8,7 +80,7 @@ $(document).ready () ->
 
   auth = new FirebaseSimpleLogin fb, (error, user) ->
     if !error and user
-      console.log ("Welcome back, #{user} (#{user.id})")
+      console.log ("Welcome back, #{user.email} (#{user.id})")
       $(".requirelogin").show()
       $(".signin-section").hide()
       $(".signedin-section").show()
@@ -23,6 +95,7 @@ $(document).ready () ->
           $(".frames-list").empty()
           for key, value of snapshot.val()
             $(".frames-list").append("<option value='#{key}' data-key='#{key}'>#{value.title}</option>")
+            $(".frame-title-container").hide()
           $(".frames-list").append("<option value='framenew'>New Entry</option>")
 
       # show new title
@@ -69,9 +142,12 @@ $(document).ready () ->
 
           $(".frames-list").val(entry_id)
 
+      # delete button
+      $(".delete").click () ->
+        title = $(".frame-title").val()
+        
       # open button
       $(".open").click () ->
-
         if $(".frames-list").val() == 'framenew'
           $(".frame-title-container").show()
         else
@@ -95,8 +171,8 @@ $(document).ready () ->
                 $("#elid-#{index}").css("top", value["inline-style"].top)
                 $("#elid-#{index}").css("left", value["inline-style"].left)
                 currClass = $("#elid-#{index}").attr("class")
-                $("#elid-#{index}").attr("class", currClass + " " + value["inc-class"])
-                $("#elid-#{index}").text(value["text"])
+                $("#elid-#{index}").attr("class", value["inc-class"])
+                $("#elid-#{index}").find(".el-content").text(value["text"])
 
             # page wide CSS editor
             $(".css-editor").val(data.val().css)
@@ -131,8 +207,25 @@ $(document).ready () ->
       div.insertBefore(prevdiv)
 
   # Group
+  groupctr = 0
   $(".groupBox").click () ->
     console.log "dummy group"
+    $(".el-active").each () ->
+      if $(this).data("ingroup") 
+        $(this).removeClass $(this).data("ingroup")
+    $(".el-active").attr("data-ingroup", "group-"+groupctr)
+    $(".el-active").addClass("group-"+groupctr)
+    $(".el-active").draggable("option", "alsoDrag", ".group-"+groupctr)
+    $(".el-active").draggable("option", "alsoResize", ".group-"+groupctr)
+    groupctr++
+
+  # Ungroup
+  $(".ungroupBox").click () ->
+    $(".el-active").each () ->
+      $(this).removeClass $(this).data("ingroup")
+      $(this).removeAttr("data-ingroup")
+      $(this).removeClass("el-active")
+
 
   # Delete
   $(".deleteBox").click () ->
@@ -154,15 +247,16 @@ $(document).ready () ->
     autoIndent:   true
   });
 
-  $(".input-color").minicolors({position: 'bottom right'})
+  $(".input-color").minicolors({position: 'top right'})
 
   # Trigger to edit text
   $(document).on "dblclick", ".el", () ->
+    console.log "doubleclick"
     $(this).find(".el-content").attr("contentEditable", true).focus()
 
   # Triggers to update style
   $(".css-includes").keyup () ->
-    $(".el-active").attr("class", "el el-box el-active defaultbox").addClass($(this).val())
+    $(".el-active").attr("class", "el el-box el-active").addClass($(this).val())
 
   $(".css-editor").keyup () ->
     $("#userstyle").empty()
@@ -238,8 +332,10 @@ $(document).ready () ->
   $(".dupBox").click () ->
     if $(".el-active").length != 0
       parent_eid = $(".el-active").data("elid")
+      parent_classes = $(".el-active").attr("class")
       $(".addBox").click()
       child_eid = $(".el-active").data("elid")
+      $(".el-active").attr("class", parent_classes)
 
       window.styles[child_eid] = {}
       for key, value of styles[parent_eid]
@@ -275,11 +371,54 @@ $(document).ready () ->
       jsonToClass($(".el-active"))
 
 loadBox = (elid) ->
+  console.log "loadBox"
   boxDiv = $ "<div class='el el-box' id='elid-#{elid}' data-elid='#{elid}'></div>"
   boxDiv.append $ "<div class='el-content'></div>"
-  boxDiv.addClass("defaultbox")
+  # boxDiv.addClass("defaultbox")
   boxDiv.draggable({
     # snap: true,
+    grid: [5,5],
+    alsoDrag: ".el-active",
+    start: () ->
+      # makeActive $(this)
+      updateClasses $(this)
+    stop: () ->
+      inlineToPanel(boxDiv)
+  })
+  # boxDiv.draggable("option", "alsoDrag", ".group")
+
+  boxDiv.resizable({
+    grid: [5,5],
+    alsoResize: ".el-active",
+    stop: () ->
+      if boxDiv.attr("ingroup")
+        $("." + boxDiv.attr("ingroup")).each () ->
+          inlineToPanel $(this)
+          panelToJSON $(this)
+          jsonToClass $(this)
+      $(".el-active").each () ->
+        inlineToPanel $(this)
+        panelToJSON $(this)
+        jsonToClass $(this)
+  })
+
+  boxDiv.click (e) ->
+    if e.shiftKey
+      makeActive $(this), false
+    else
+      makeActive $(this), true
+    updateClasses $(this)
+    inlineToPanel $(this)
+  
+  # updateStyle boxDiv
+  $(".workspace").append boxDiv
+
+
+addGroupBox = (elid) ->
+  boxDiv = $ "<div class='el el-group' id='elid-#{elid}' data-elid='#{elid}'></div>"
+  boxDiv.append $ "<div class='el-content'></div>"
+  # boxDiv.addClass("defaultbox")
+  boxDiv.draggable({
     grid: [5,5],
     start: () ->
       makeActive $(this)
@@ -295,9 +434,13 @@ loadBox = (elid) ->
       jsonToClass boxDiv
   })
   
-  boxDiv.click () ->
-    makeActive $(this)
+  boxDiv.click (e) ->
+    if e.shiftKey
+      makeActive $(this), false
+    else
+      makeActive $(this), true
     updateClasses $(this)
+    inlineToPanel $(this)
   
   # updateStyle boxDiv
   $(".workspace").append boxDiv
@@ -311,29 +454,47 @@ addBox = (elid) ->
     boxDiv.draggable({
       # snap: true,
       grid: [5,5],
+      alsoDrag: ".el-active",
       start: () ->
-        makeActive $(this)
+        # makeActive $(this)
         updateClasses $(this)
       stop: () ->
         inlineToPanel(boxDiv)
     })
     boxDiv.resizable({
       grid: [5,5],
+      alsoResize: ".el-active",
       stop: () ->
-        inlineToPanel boxDiv
-        panelToJSON boxDiv
-        jsonToClass boxDiv
+        if boxDiv.attr("ingroup")
+          $("." + boxDiv.attr("ingroup")).each () ->
+            inlineToPanel $(this)
+            panelToJSON $(this)
+            jsonToClass $(this)
+        $(".el-active").each () ->
+          inlineToPanel $(this)
+          panelToJSON $(this)
+          jsonToClass $(this)
     })
 
     makeActive boxDiv
     updateClasses boxDiv
     
-    boxDiv.click () ->
-      makeActive $(this)
+    boxDiv.click (e) ->
+      if e.shiftKey
+        makeActive $(this), false 
+      else
+        makeActive $(this), true
       updateClasses $(this)
+      inlineToPanel $(this)
     
     # updateStyle boxDiv
     $(".workspace").append boxDiv
+
+    # inlineToPanel boxDiv
+    $(".set-size-w").val("200px")
+    $(".set-size-h").val("50px")
+    panelToJSON boxDiv
+    jsonToClass boxDiv
 
 setDefaultStyle = (callback) ->
   $(".elidstyle").val("")
@@ -357,6 +518,7 @@ setDefaultStyle = (callback) ->
 # UPDATE STYLE
 window.styles = []
 panelToJSON = (div) ->
+  console.log "panelToJSON"
   elid = div.data("elid")
   if window.styles[elid] == undefined
     window.styles[elid] = {}
@@ -468,9 +630,13 @@ inlineToPanel = (div) ->
   div.attr("style", "top: #{t}; left: #{l}")
   # updateStyle(div)
 
-makeActive = (div) ->
-  $(".el-active").removeClass("el-active")
+makeActive = (div, exclusive) ->
+  if exclusive == undefined or exclusive == true 
+    $(".el-active").removeClass("el-active")
   div.addClass("el-active")
+
+  if div.data("ingroup")
+    $("."+div.data("ingroup")).addClass("el-active")
 
   if window.styles[div.data("elid")] != undefined
     jsonToPanel div
@@ -482,11 +648,10 @@ makeActive = (div) ->
 updateClasses = (div) ->
   classes = div.attr("class").split(" ")
   classesString = ""
-  ignoreClass = ["el", "el-box",  "el-active", "defaultbox",
-    "ui-draggable", "ui-draggable-dragging", "ui-resizable"]
+  ignoreClass = ["el", "el-box",  "el-active", "ui-draggable", "ui-draggable-dragging", "ui-resizable"]
   for c in classes
     if ignoreClass.indexOf(c) <= -1
-      classesString = c + " "
+      classesString += c + " "
 
   $(".css-includes").val(classesString)
 

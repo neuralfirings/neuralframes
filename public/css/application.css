@@ -76,6 +76,8 @@
   .workpanel label {
     color: #EEE;
     min-width: 100px; }
+  .workpanel .panel-body, .workpanel .panel {
+    background-color: transparent; }
   .workpanel h1 {
     font-size: 12px;
     width: 100%;
