@@ -136,7 +136,7 @@ $(document).ready(function() {
           _ref = window.styles;
           for (index = _i = 0, _len = _ref.length; _i < _len; index = ++_i) {
             style = _ref[index];
-            if (style !== void 0) {
+            if (style !== void 0 && $("#elid-" + index) !== void 0) {
               div = $("#elid-" + index);
               entry.child("elements").child(index).child("el-style").set(style);
               entry.child("elements").child(index).child("inc-class").set(div.attr("class"));
@@ -180,25 +180,27 @@ $(document).ready(function() {
               for (_i = 0, _len = _ref.length; _i < _len; _i++) {
                 index = _ref[_i];
                 value = data.val().elements[index];
-                window.styles[index] = {};
-                _ref1 = value["el-style"];
-                for (key in _ref1) {
-                  val = _ref1[key];
-                  window.styles[index][key] = val;
+                if (value) {
+                  window.styles[index] = {};
+                  _ref1 = value["el-style"];
+                  for (key in _ref1) {
+                    val = _ref1[key];
+                    window.styles[index][key] = val;
+                  }
+                  loadBox(index);
+                  jsonToPanel($("#elid-" + index));
+                  jsonToClass($("#elid-" + index));
+                  $("#elid-" + index).css("top", value["inline-style"].top);
+                  $("#elid-" + index).css("left", value["inline-style"].left);
+                  currClass = $("#elid-" + index).attr("class");
+                  $("#elid-" + index).attr("class", value["inc-class"]);
+                  if (value["ingroup"]) {
+                    $("#elid-" + index).attr("data-ingroup", value["ingroup"]);
+                    currgroupid = Number(value["ingroup"].substr(6));
+                    groupctr = Math.max(groupctr, currgroupid) + 1;
+                  }
+                  $("#elid-" + index).find(".el-content").text(value["text"]);
                 }
-                loadBox(index);
-                jsonToPanel($("#elid-" + index));
-                jsonToClass($("#elid-" + index));
-                $("#elid-" + index).css("top", value["inline-style"].top);
-                $("#elid-" + index).css("left", value["inline-style"].left);
-                currClass = $("#elid-" + index).attr("class");
-                $("#elid-" + index).attr("class", value["inc-class"]);
-                if (value["ingroup"]) {
-                  $("#elid-" + index).attr("data-ingroup", value["ingroup"]);
-                  currgroupid = Number(value["ingroup"].substr(6));
-                  groupctr = Math.max(groupctr, currgroupid) + 1;
-                }
-                $("#elid-" + index).find(".el-content").text(value["text"]);
               }
             } else {
               _ref2 = data.val().elements;

@@ -64,7 +64,7 @@ $(document).ready () ->
           $(".workspace").find(".el").each () ->
             order.push $(this).data("elid")
           for style, index in window.styles   # for each element
-            if style != undefined
+            if style != undefined and $("#elid-"+index) != undefined
               div = $("#elid-"+index)
               entry.child("elements").child(index).child("el-style").set(style)
               entry.child("elements").child(index).child("inc-class").set(div.attr("class"))
@@ -104,21 +104,22 @@ $(document).ready () ->
             if data.val().order
               for index in data.val().order 
                 value = data.val().elements[index]
-                window.styles[index] = {}
-                for key, val of value["el-style"]
-                  window.styles[index][key] = val
-                loadBox index
-                jsonToPanel($("#elid-#{index}"))
-                jsonToClass($("#elid-#{index}"))
-                $("#elid-#{index}").css("top", value["inline-style"].top)
-                $("#elid-#{index}").css("left", value["inline-style"].left)
-                currClass = $("#elid-#{index}").attr("class")
-                $("#elid-#{index}").attr("class", value["inc-class"])
-                if value["ingroup"]
-                  $("#elid-#{index}").attr("data-ingroup", value["ingroup"])
-                  currgroupid = Number(value["ingroup"].substr(6))
-                  groupctr = Math.max(groupctr, currgroupid) + 1
-                $("#elid-#{index}").find(".el-content").text(value["text"])
+                if value 
+                  window.styles[index] = {}
+                  for key, val of value["el-style"]
+                    window.styles[index][key] = val
+                  loadBox index
+                  jsonToPanel($("#elid-#{index}"))
+                  jsonToClass($("#elid-#{index}"))
+                  $("#elid-#{index}").css("top", value["inline-style"].top)
+                  $("#elid-#{index}").css("left", value["inline-style"].left)
+                  currClass = $("#elid-#{index}").attr("class")
+                  $("#elid-#{index}").attr("class", value["inc-class"])
+                  if value["ingroup"]
+                    $("#elid-#{index}").attr("data-ingroup", value["ingroup"])
+                    currgroupid = Number(value["ingroup"].substr(6))
+                    groupctr = Math.max(groupctr, currgroupid) + 1
+                  $("#elid-#{index}").find(".el-content").text(value["text"])
             else
               for value, index in data.val().elements # each element
                 if value != undefined
