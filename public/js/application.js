@@ -1,5 +1,3 @@
-var addBox, addGroupBox, displayCSSChunk, displayOnlyDefined, getColorLuminance, groupctr, hex, hexDigits, inlineToPanel, jsonToClass, jsonToPanel, loadBox, makeActive, panelToJSON, rgb2hex, setDefaultStyle, updateClasses;
-
 $.ui.plugin.add("draggable", "alsoDrag", {
   start: function() {
     var o, that, _store;
@@ -65,6 +63,8 @@ $.ui.plugin.add("draggable", "alsoDrag", {
     $(this).removeData("ui-draggable-alsoDrag");
   }
 });
+
+var addBox, addGroupBox, displayCSSChunk, displayOnlyDefined, getColorLuminance, groupctr, hex, hexDigits, inlineToPanel, jsonToClass, jsonToPanel, loadBox, makeActive, panelToJSON, rgb2hex, setDefaultStyle, updateClasses;
 
 groupctr = 0;
 
