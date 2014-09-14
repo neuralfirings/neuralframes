@@ -1,10 +1,8 @@
 $.ui.plugin.add "draggable", "alsoDrag",
   start: ->
-    console.log "alsoDrag"
     that = $(this).data("ui-draggable")
     o = that.options
     _store = (exp) ->
-      console.log exp
       $(exp).each () ->
         el = $(this)
         el.data "ui-draggable-alsoDrag",
@@ -36,7 +34,7 @@ $.ui.plugin.add "draggable", "alsoDrag",
       left: (that.position.left - op.left) or 0
 
     _alsoDrag = (exp, c) ->
-      console.log 'alsoDragging'
+
       $(exp).each ->
         el = $(this)
         start = $(this).data("ui-draggable-alsoDrag")
@@ -70,6 +68,7 @@ $.ui.plugin.add "draggable", "alsoDrag",
 
 
 
+groupctr = 0
 $(document).ready () ->
 
   # Tool tips
@@ -142,6 +141,8 @@ $(document).ready () ->
               entry.child("elements").child(index).child("inline-style").child("top").set(div.css("top"))
               entry.child("elements").child(index).child("inline-style").child("left").set(div.css("left"))
               entry.child("elements").child(index).child("text").set(div.text())
+              if div.data("ingroup")
+                entry.child("elements").child(index).child("ingroup").set(div.data("ingroup"))
             else 
               entry.child("elements").child(index).remove()
 
@@ -173,8 +174,6 @@ $(document).ready () ->
             if data.val().order
               for index in data.val().order 
                 value = data.val().elements[index]
-                # index = elid
-                # console.log data.val().elements[elid], elid
                 window.styles[index] = {}
                 for key, val of value["el-style"]
                   window.styles[index][key] = val
@@ -185,10 +184,13 @@ $(document).ready () ->
                 $("#elid-#{index}").css("left", value["inline-style"].left)
                 currClass = $("#elid-#{index}").attr("class")
                 $("#elid-#{index}").attr("class", value["inc-class"])
+                if value["ingroup"]
+                  $("#elid-#{index}").attr("data-ingroup", value["ingroup"])
+                  currgroupid = Number(value["ingroup"].substr(6))
+                  groupctr = Math.max(groupctr, currgroupid) + 1
                 $("#elid-#{index}").find(".el-content").text(value["text"])
             else
               for value, index in data.val().elements # each element
-                console.log value, index
                 if value != undefined
                   window.styles[index] = {}
                   for key, val of value["el-style"]
@@ -243,22 +245,21 @@ $(document).ready () ->
     div.insertBefore(firstel)
 
   # Group
-  groupctr = 0
   $(".groupBox").click () ->
-    console.log "dummy group"
     $(".el-active").each () ->
-      if $(this).data("ingroup") 
-        $(this).removeClass $(this).data("ingroup")
+      # if $(this).data("ingroup") 
+      #   $(this).removeClass $(this).data("ingroup")
     $(".el-active").attr("data-ingroup", "group-"+groupctr)
-    $(".el-active").addClass("group-"+groupctr)
-    $(".el-active").draggable("option", "alsoDrag", ".group-"+groupctr)
-    $(".el-active").draggable("option", "alsoResize", ".group-"+groupctr)
+    # $(".el-active").addClass("group-"+groupctr)
+    $(".el-active").draggable("option", "alsoDrag", ".el[data-ingroup='group-" + groupctr + "']")
+    $(".el-active").resizable("option", "alsoResize", ".el[data-ingroup='group-" + groupctr + "']") #".group-"+groupctr)
     groupctr++
 
   # Ungroup
   $(".ungroupBox").click () ->
     $(".el-active").each () ->
-      $(this).removeClass $(this).data("ingroup")
+      # $(this).removeClass (index, css) ->
+      #   (css.match (/(^|\s)group-\S+/g) || []).join(' ')
       $(this).removeAttr("data-ingroup")
       $(this).removeClass("el-active")
 
@@ -292,7 +293,6 @@ $(document).ready () ->
 
   # Trigger to edit text
   $(document).on "dblclick", ".el", () ->
-    console.log "doubleclick"
     $(this).find(".el-content").attr("contentEditable", true).focus()
 
   # Triggers to update style
@@ -413,7 +413,6 @@ $(document).ready () ->
       jsonToClass($(".el-active"))
 
 loadBox = (elid) ->
-  console.log "loadBox"
   boxDiv = $ "<div class='el el-box' id='elid-#{elid}' data-elid='#{elid}'></div>"
   boxDiv.append $ "<div class='el-content'></div>"
   # boxDiv.addClass("defaultbox")
@@ -560,7 +559,6 @@ setDefaultStyle = (callback) ->
 # UPDATE STYLE
 window.styles = []
 panelToJSON = (div) ->
-  console.log "panelToJSON"
   elid = div.data("elid")
   if window.styles[elid] == undefined
     window.styles[elid] = {}
@@ -678,7 +676,7 @@ makeActive = (div, exclusive) ->
   div.addClass("el-active")
 
   if div.data("ingroup")
-    $("."+div.data("ingroup")).addClass("el-active")
+    $(".el[data-ingroup='"+div.data("ingroup")+"']").addClass("el-active")
 
   if window.styles[div.data("elid")] != undefined
     jsonToPanel div

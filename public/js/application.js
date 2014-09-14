@@ -1,13 +1,11 @@
-var addBox, addGroupBox, displayCSSChunk, displayOnlyDefined, getColorLuminance, hex, hexDigits, inlineToPanel, jsonToClass, jsonToPanel, loadBox, makeActive, panelToJSON, rgb2hex, setDefaultStyle, updateClasses;
+var addBox, addGroupBox, displayCSSChunk, displayOnlyDefined, getColorLuminance, groupctr, hex, hexDigits, inlineToPanel, jsonToClass, jsonToPanel, loadBox, makeActive, panelToJSON, rgb2hex, setDefaultStyle, updateClasses;
 
 $.ui.plugin.add("draggable", "alsoDrag", {
   start: function() {
     var o, that, _store;
-    console.log("alsoDrag");
     that = $(this).data("ui-draggable");
     o = that.options;
     _store = function(exp) {
-      console.log(exp);
       $(exp).each(function() {
         var el;
         el = $(this);
@@ -41,7 +39,6 @@ $.ui.plugin.add("draggable", "alsoDrag", {
       left: (that.position.left - op.left) || 0
     };
     _alsoDrag = function(exp, c) {
-      console.log('alsoDragging');
       $(exp).each(function() {
         var css, el, start, style;
         el = $(this);
@@ -69,8 +66,10 @@ $.ui.plugin.add("draggable", "alsoDrag", {
   }
 });
 
+groupctr = 0;
+
 $(document).ready(function() {
-  var auth, editor, fb, groupctr;
+  var auth, editor, fb;
   $(".maketooltip").tooltip();
   $(".showclass").click(function() {
     var element;
@@ -144,6 +143,9 @@ $(document).ready(function() {
               entry.child("elements").child(index).child("inline-style").child("top").set(div.css("top"));
               entry.child("elements").child(index).child("inline-style").child("left").set(div.css("left"));
               entry.child("elements").child(index).child("text").set(div.text());
+              if (div.data("ingroup")) {
+                entry.child("elements").child(index).child("ingroup").set(div.data("ingroup"));
+              }
             } else {
               entry.child("elements").child(index).remove();
             }
@@ -170,7 +172,7 @@ $(document).ready(function() {
         $(".workspace").empty();
         window.styles = [];
         return entry.once("value", function(data) {
-          var currClass, index, key, val, value, _i, _j, _len, _len1, _ref, _ref1, _ref2, _ref3;
+          var currClass, currgroupid, index, key, val, value, _i, _j, _len, _len1, _ref, _ref1, _ref2, _ref3;
           if (data.val() !== null) {
             window.elidCtr = data.val().elidCtr;
             if (data.val().order) {
@@ -191,13 +193,17 @@ $(document).ready(function() {
                 $("#elid-" + index).css("left", value["inline-style"].left);
                 currClass = $("#elid-" + index).attr("class");
                 $("#elid-" + index).attr("class", value["inc-class"]);
+                if (value["ingroup"]) {
+                  $("#elid-" + index).attr("data-ingroup", value["ingroup"]);
+                  currgroupid = Number(value["ingroup"].substr(6));
+                  groupctr = Math.max(groupctr, currgroupid) + 1;
+                }
                 $("#elid-" + index).find(".el-content").text(value["text"]);
               }
             } else {
               _ref2 = data.val().elements;
               for (index = _j = 0, _len1 = _ref2.length; _j < _len1; index = ++_j) {
                 value = _ref2[index];
-                console.log(value, index);
                 if (value !== void 0) {
                   window.styles[index] = {};
                   _ref3 = value["el-style"];
@@ -268,23 +274,15 @@ $(document).ready(function() {
     firstel = $(".workspace").find(".el").first();
     return div.insertBefore(firstel);
   });
-  groupctr = 0;
   $(".groupBox").click(function() {
-    console.log("dummy group");
-    $(".el-active").each(function() {
-      if ($(this).data("ingroup")) {
-        return $(this).removeClass($(this).data("ingroup"));
-      }
-    });
+    $(".el-active").each(function() {});
     $(".el-active").attr("data-ingroup", "group-" + groupctr);
-    $(".el-active").addClass("group-" + groupctr);
-    $(".el-active").draggable("option", "alsoDrag", ".group-" + groupctr);
-    $(".el-active").draggable("option", "alsoResize", ".group-" + groupctr);
+    $(".el-active").draggable("option", "alsoDrag", ".el[data-ingroup='group-" + groupctr + "']");
+    $(".el-active").resizable("option", "alsoResize", ".el[data-ingroup='group-" + groupctr + "']");
     return groupctr++;
   });
   $(".ungroupBox").click(function() {
     return $(".el-active").each(function() {
-      $(this).removeClass($(this).data("ingroup"));
       $(this).removeAttr("data-ingroup");
       return $(this).removeClass("el-active");
     });
@@ -326,7 +324,6 @@ $(document).ready(function() {
     position: 'top right'
   });
   $(document).on("dblclick", ".el", function() {
-    console.log("doubleclick");
     return $(this).find(".el-content").attr("contentEditable", true).focus();
   });
   $(".css-includes").keyup(function() {
@@ -440,7 +437,6 @@ $(document).ready(function() {
 
 loadBox = function(elid) {
   var boxDiv;
-  console.log("loadBox");
   boxDiv = $("<div class='el el-box' id='elid-" + elid + "' data-elid='" + elid + "'></div>");
   boxDiv.append($("<div class='el-content'></div>"));
   boxDiv.draggable({
@@ -589,7 +585,6 @@ window.styles = [];
 
 panelToJSON = function(div) {
   var elid;
-  console.log("panelToJSON");
   elid = div.data("elid");
   if (window.styles[elid] === void 0) {
     window.styles[elid] = {};
@@ -685,7 +680,7 @@ makeActive = function(div, exclusive) {
   }
   div.addClass("el-active");
   if (div.data("ingroup")) {
-    $("." + div.data("ingroup")).addClass("el-active");
+    $(".el[data-ingroup='" + div.data("ingroup") + "']").addClass("el-active");
   }
   if (window.styles[div.data("elid")] !== void 0) {
     jsonToPanel(div);
