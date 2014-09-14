@@ -1,4 +1,27 @@
 groupctr = 0
+
+$(document).keydown (e) ->
+  k = e.keyCode
+  if $(".el-active").length > 0
+    if k >= 38 and k <= 40
+      e.preventDefault()
+    if (k == 38)  
+      $(".el-active").each () ->
+        t = parseInt($(this).css("top"))
+        $(this).css("top", t-1 + "px")
+    else if (k == 40)
+      $(".el-active").each () ->
+        t = parseInt($(this).css("top"))
+        $(this).css("top", t+1  + "px")
+    else if (k == 37)
+      $(".el-active").each () ->
+        l = parseInt($(this).css("left"))
+        $(this).css("left", l-1 + "px")
+    else if (k == 39)
+      $(".el-active").each () ->
+        l = parseInt($(this).css("left"))
+        $(this).css("left", l+1 + "px")
+
 $(document).ready () ->
 
   # Tool tips
@@ -236,9 +259,11 @@ $(document).ready () ->
 
   $(".elidstyle").keyup () ->
     # updateStyle($(".el-active"))
+    panelToInline($(".el-active"))
     panelToJSON($(".el-active"))
     jsonToClass($(".el-active"))
   $(".elidstyle").change () ->
+    panelToInline($(".el-active"))
     panelToJSON($(".el-active"))
     jsonToClass($(".el-active"))
 
@@ -489,6 +514,11 @@ setDefaultStyle = (callback) ->
 
 # UPDATE STYLE
 window.styles = []
+panelToInline = (div) ->
+  elid = div.data("elid")
+  div.css("top", $(".set-pos-top").val())
+  div.css("left", $(".set-pos-left").val())
+
 panelToJSON = (div) ->
   elid = div.data("elid")
   if window.styles[elid] == undefined

@@ -64,9 +64,44 @@ $.ui.plugin.add("draggable", "alsoDrag", {
   }
 });
 
-var addBox, addGroupBox, displayCSSChunk, displayOnlyDefined, getColorLuminance, groupctr, hex, hexDigits, inlineToPanel, jsonToClass, jsonToPanel, loadBox, makeActive, panelToJSON, rgb2hex, setDefaultStyle, updateClasses;
+var addBox, addGroupBox, displayCSSChunk, displayOnlyDefined, getColorLuminance, groupctr, hex, hexDigits, inlineToPanel, jsonToClass, jsonToPanel, loadBox, makeActive, panelToInline, panelToJSON, rgb2hex, setDefaultStyle, updateClasses;
 
 groupctr = 0;
+
+$(document).keydown(function(e) {
+  var k;
+  k = e.keyCode;
+  if ($(".el-active").length > 0) {
+    if (k >= 38 && k <= 40) {
+      e.preventDefault();
+    }
+    if (k === 38) {
+      return $(".el-active").each(function() {
+        var t;
+        t = parseInt($(this).css("top"));
+        return $(this).css("top", t - 1 + "px");
+      });
+    } else if (k === 40) {
+      return $(".el-active").each(function() {
+        var t;
+        t = parseInt($(this).css("top"));
+        return $(this).css("top", t + 1 + "px");
+      });
+    } else if (k === 37) {
+      return $(".el-active").each(function() {
+        var l;
+        l = parseInt($(this).css("left"));
+        return $(this).css("left", l - 1 + "px");
+      });
+    } else if (k === 39) {
+      return $(".el-active").each(function() {
+        var l;
+        l = parseInt($(this).css("left"));
+        return $(this).css("left", l + 1 + "px");
+      });
+    }
+  }
+});
 
 $(document).ready(function() {
   var auth, editor, fb;
@@ -336,10 +371,12 @@ $(document).ready(function() {
     return $("#userstyle").append($(this).val());
   });
   $(".elidstyle").keyup(function() {
+    panelToInline($(".el-active"));
     panelToJSON($(".el-active"));
     return jsonToClass($(".el-active"));
   });
   $(".elidstyle").change(function() {
+    panelToInline($(".el-active"));
     panelToJSON($(".el-active"));
     return jsonToClass($(".el-active"));
   });
@@ -584,6 +621,13 @@ setDefaultStyle = function(callback) {
 };
 
 window.styles = [];
+
+panelToInline = function(div) {
+  var elid;
+  elid = div.data("elid");
+  div.css("top", $(".set-pos-top").val());
+  return div.css("left", $(".set-pos-left").val());
+};
 
 panelToJSON = function(div) {
   var elid;
